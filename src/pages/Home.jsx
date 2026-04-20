@@ -4,6 +4,7 @@ import ReadySection from "../features/home/ReadySection";
 import ContactUsSection from "../features/home/ContactUsSection";
 import BrandsSection from "../features/home/BrandsSection";
 import CharacteristicsSection from "../features/home/CharacteristicsSection";
+import React from 'react';
     
     function Home() {
         return(
