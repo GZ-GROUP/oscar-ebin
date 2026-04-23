@@ -165,7 +165,7 @@ function ContactUsSection() {
           }}
         />
         <img
-          src="" {/* RUTA DEL LOGO */}
+          src="" 
           alt="GZ Group"
           style={{ width: "200px", objectFit: "contain" }}
         />
