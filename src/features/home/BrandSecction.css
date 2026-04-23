@@ -1,0 +1,76 @@
+
+.brands-section {
+    background-color: #4aff47;
+    padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+}
+
+.brands-title {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #222;
+    letter-spacing: 0.01em;
+    text-align: center;
+}
+
+.brands-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+
+.brand-circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brand-circle:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+
+.brand-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; 
+    border-radius: 50%;
+    display: block;
+}
+
+
+.brand-placeholder {
+    color: #555;
+    font-size: 0.75rem;
+    font-family: monospace;
+    user-select: none;
+}
+
+
+@media (max-width: 480px) {
+    .brand-circle {
+        width: 72px;
+        height: 72px;
+    }
+
+    .brands-grid {
+        gap: 14px;
+    }
+}
