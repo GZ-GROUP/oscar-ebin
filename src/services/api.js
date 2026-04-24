@@ -24,7 +24,7 @@ export const apiCall = async (endpoint, method = "GET", data = null) => {
     try {
       result = JSON.parse(jsonText);
     } catch (parseError) {
-      throw new Error(`Respuesta no es JSON válido: ${text} ${API_URL} ${API_TARGET}`);
+      throw new Error(`Respuesta no es JSON válido: ${text} `);
     }
 
     if (!response.ok) {

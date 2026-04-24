@@ -10,18 +10,25 @@ COPY . .
 RUN npm run build
 
 # Etapa de producción
-FROM node:18-alpine
+FROM nginx:alpine
 
 WORKDIR /app
 
-# Instalar serve (servidor estático)
-RUN npm install -g serve
+# Instalar gettext para envsubst (necesario para substituir variables en nginx.conf)
+RUN apk add --no-cache gettext
 
-# Copiar build
-COPY --from=build /app/dist ./dist
+# Copiar build desde etapa de build
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copiar configuración de nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf.template
+
+# Copiar script de entrypoint
+COPY docker-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Exponer puerto
-EXPOSE 3000
+EXPOSE 80
 
-# Servir app
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Ejecutar entrypoint para substituir variables y arrancar nginx
+ENTRYPOINT ["/entrypoint.sh"]
