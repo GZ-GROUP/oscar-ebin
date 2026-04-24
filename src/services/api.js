@@ -1,4 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL;
+const API_TARGET = import.meta.env.VITE_API_TARGET;
 
 export const apiCall = async (endpoint, method = "GET", data = null) => {
   const options = {
@@ -23,7 +24,7 @@ export const apiCall = async (endpoint, method = "GET", data = null) => {
     try {
       result = JSON.parse(jsonText);
     } catch (parseError) {
-      throw new Error(`Respuesta no es JSON válido: ${text} ${API_URL}`);
+      throw new Error(`Respuesta no es JSON válido: ${text} ${API_URL} ${API_TARGET}`);
     }
 
     if (!response.ok) {
