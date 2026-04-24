@@ -11,14 +11,12 @@ import React from 'react';
     function Home() {
         return(
                 <div className="home">
-                    <Navbar />
                     <HeroSection />
                     <BrandsSection />
                     <HowToSection />
                     <CharacteristicsSection />
                     <ContactUsSection />
                     <ReadySection />
-                    <Footer />
 
                 </div>
 

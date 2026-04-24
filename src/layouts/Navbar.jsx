@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 
 import logoImg from "/src/assets/mainOscar.svg";
 
@@ -19,26 +19,28 @@ export default function Navbar() {
       }}
     >
       {/* Logo + Brand */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        <img
-          src={logoImg}
-          alt="Oscar logo"
-          style={{ width: 48, height: 48, objectFit: "contain" }}
-        />
-        <span
-          style={{
-            fontFamily: "'Roboto', sans-serif",
-            fontWeight: 700,
-            fontSize: "24px",
-            color: "#1e3932",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            whiteSpace: "nowrap",
-          }}
-        >
-          Oscar
-        </span>
-      </div>
+      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <img
+            src={logoImg}
+            alt="Oscar logo"
+            style={{ width: 48, height: 48, objectFit: "contain" }}
+          />
+          <span
+            style={{
+              fontFamily: "'Roboto', sans-serif",
+              fontWeight: 700,
+              fontSize: "24px",
+              color: "#1e3932",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Oscar
+          </span>
+        </div>
+      </Link>
 
       {/* Nav Links + CTA */}
       <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
@@ -61,7 +63,8 @@ export default function Navbar() {
           </a>
         ))}
 
-        <button
+        <Link
+          to="/signup"
           style={{
             fontFamily: "'Roboto', sans-serif",
             fontWeight: 500,
@@ -74,18 +77,20 @@ export default function Navbar() {
             cursor: "pointer",
             whiteSpace: "nowrap",
             transition: "background 0.2s, color 0.2s",
+            textDecoration: "none",
+            display: "inline-block",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#1e3932";
-            e.currentTarget.style.color = "#fff";
+            e.target.style.background = "#1e3932";
+            e.target.style.color = "#fff";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "#1e3932";
+            e.target.style.background = "transparent";
+            e.target.style.color = "#1e3932";
           }}
         >
           Registrate
-        </button>
+        </Link>
       </div>
     </nav>
   );
