@@ -10,6 +10,11 @@ import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import SignIn from "./pages/Auth/SignInPage";
 import SignUp from "./pages/Auth/SignUpPage";
+import AboutUs from './pages/AboutUs';
+import Shop from './pages/Shop/Shop';
+import Profile from './pages/Profile';
+import Leaderboard from './pages/Leaderboard';
+import Panel from './pages/Panel';
 import './App.css'
 
 
@@ -29,6 +34,26 @@ export const router = createBrowserRouter([
       {
         path: "signup",
         element: <SignUp />,
+      },
+      {
+        path: "about",
+        element: <AboutUs />,
+      },
+      {
+        path: "shop",
+        element: <Shop />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
+      },
+      {
+        path: "leaderboard",
+        element: <Leaderboard />,
+      },
+      {
+        path: "panel",
+        element: <Panel />,
       },
     ],
   },
