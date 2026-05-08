@@ -16,7 +16,8 @@ function BrandsSection() {
         <section className="brands-section">
             <p className="brands-title">Empresas que confían en nosotros</p>
             <div className="brands-grid">
-                {brands.map((brand) => (
+                <div className="group">
+                    {brands.map((brand) => (
                     <div className="brand-circle" key={brand.id}>
                         {brand.image ? (
                             <img
@@ -30,6 +31,23 @@ function BrandsSection() {
                         )}
                     </div>
                 ))}
+                </div>
+                <div aria-hidden className="group">
+                    {brands.map((brand) => (
+                    <div className="brand-circle" key={brand.id}>
+                        {brand.image ? (
+                            <img
+                                src={brand.image}
+                                alt={brand.name}
+                                className="brand-image"
+                            />
+                        ) : (
+                            
+                            <span className="brand-placeholder">{brand.id}</span>
+                        )}
+                    </div>
+                ))}
+                </div>                 
             </div>
         </section>
     );
