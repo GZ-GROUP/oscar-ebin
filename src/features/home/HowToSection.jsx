@@ -8,14 +8,14 @@ const styles = {
     backgroundColor: '#f0ede8',
     display: 'flex',
     flexDirection: 'column',
-    fontFamily: "'Georgia', 'Times New Roman', serif",
+    fontFamily: "'Cabin Condensed', 'ABeeZee', serif",
     overflow: 'hidden',
     boxSizing: 'border-box',
   },
 
-  // ── TOP 25% ──────────────────────────────────────────────────────────────
+  // ── TOP 20% ──────────────────────────────────────────────────────────────
   headerBlock: {
-    height: '25%',           // 164px of 656px
+    height: '20%',           // 164px of 656px
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -105,8 +105,8 @@ const styles = {
   },
 
   stepNumber: {
-    width: '44px',
-    height: '44px',
+    width: '60px',
+    height: '60px',
     borderRadius: '50%',
     backgroundColor: '#2d7a4f',
     display: 'flex',
@@ -124,21 +124,21 @@ const styles = {
 const CARD_DATA = [
   {
     step: 1,
-    text: 'Le muestras a Oscar lo que deseas reciclar',
+    text: 'Escaneas el QR y alimentas a Oscar con tu materia de reciclaje',
     // person showing items / waste sorting
-    bg: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=700&q=80',
+    bg: 'https://plus.unsplash.com/premium_vector-1764172293509-f2d2c764b8c2?q=80&w=580&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   },
   {
     step: 2,
-    text: 'Espera que Oscar clasifique tu materia de reciclaje',
+    text: 'Oscar reconoce y clasifica tu materia de reciclaje',
     // smart bin / technology
-    bg: 'https://images.unsplash.com/photo-1611270629569-8b357cb88da9?w=700&q=80',
+    bg: 'https://plus.unsplash.com/premium_vector-1711877749643-73289b60330e?q=80&w=580&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   },
   {
     step: 3,
     text: 'Oscar te premiará con puntos por reciclar',
     // reward / celebration / green
-    bg: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=700&q=80',
+    bg: 'https://plus.unsplash.com/premium_vector-1719014755221-c88255035aee?q=80&w=580&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   },
 ];
 
@@ -146,7 +146,7 @@ function HowToSection() {
   return (
     <section style={styles.section}>
 
-      {/* ── TOP 25%: Header ── */}
+      {/* ── TOP 20%: Header ── */}
       <div style={styles.headerBlock}>
         <h2 style={styles.title}>¿Cómo Funciona Oscar?</h2>
         <p style={styles.subtitle}>Tecnología inteligente para un futuro sostenible</p>
@@ -170,7 +170,6 @@ function HowToSection() {
             {/* Text content */}
             <div style={styles.cardContent}>
               <div style={styles.stepNumber}>{card.step}</div>
-              <span style={styles.stepLabel}>Paso {card.step}</span>
               <p style={styles.cardText}>{card.text}</p>
             </div>
           </div>

@@ -34,7 +34,7 @@ export default function HeroSection() {
             margin: "0 0 28px 0",
           }}
         >
-          Basurero Inteligente
+          Reciclaje Inteligente para un Futuro Sostenible
         </h1>
 
         <p
@@ -54,7 +54,7 @@ export default function HeroSection() {
 
         <button
           style={{
-            fontFamily: "'Roboto', sans-serif",
+            fontFamily: "'ABeeZee', sans-serif",
             fontWeight: 500,
             fontSize: "18px",
             color: "#fff",

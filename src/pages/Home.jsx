@@ -15,8 +15,8 @@ import React from 'react';
                     <BrandsSection />
                     <HowToSection />
                     <CharacteristicsSection />
-                    <ContactUsSection />
                     <ReadySection />
+                    <ContactUsSection />
 
                 </div>
 

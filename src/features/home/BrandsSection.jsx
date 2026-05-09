@@ -10,6 +10,12 @@ function BrandsSection() {
         { id: 4, name: "Brand 4", image: "src/assets/google.png" },
         { id: 5, name: "Brand 5", image: "src/assets/microsoft.png" },
         { id: 6, name: "Brand 6", image: "src/assets/meta.png" },
+        { id: 7, name: "Brand 7", image: "src/assets/31minutos.png" },
+        { id: 8, name: "Brand 8", image: "src/assets/aperture.png" },
+        { id: 9, name: "Brand 9", image: "src/assets/black_mesa.svg" },
+        { id: 10, name: "Brand 10", image: "src/assets/valve.png" },
+        { id: 11, name: "Brand 11", image: "src/assets/umbrella.png" },
+        { id: 12, name: "Brand 12", image: "src/assets/capsule.png" },
     ];
 
     return (

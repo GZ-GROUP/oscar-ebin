@@ -1,6 +1,6 @@
 
 .brands-section {
-    background-color: #4aff47;
+    background-color: #006241;
     padding: 48px 24px;
     display: flex;
     flex-direction: column;
@@ -10,10 +10,10 @@
 
 .brands-title {
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'ABeeZee', sans-serif;
     font-size: 1.5rem;
     font-weight: 400;
-    color: #222;
+    color: #ffffff;
     letter-spacing: 0.01em;
     text-align: center;
 }
@@ -21,9 +21,9 @@
 .brands-grid {
     display: flex;
     flex-direction: row;
-    width: 50%;
+    width: 70%;
     margin: 100px auto;
-    overflow-x: auto;
+    overflow: hidden;
 }
 
 .brands-grid::-webkit-scrollbar {
@@ -35,7 +35,7 @@
     align-items: center;
     justify-content: center;
     gap: 1em;
-    animation: spin 5s infinite linear;
+    animation: spin 10s infinite linear;
     padding-right: 1em;
 }
 
@@ -49,7 +49,6 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    flex: 0 0 5em;
     
     
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -59,12 +58,6 @@
     from {translate: 0;}
     to {translate: -100%;}
 }
-
-.brand-circle:hover {
-    transform: scale(1.06);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
-}
-
 
 .brand-image {
     width: 100%;
