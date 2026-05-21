@@ -3,16 +3,15 @@ import './CharacteristicsSection.css';
 
 function CharacteristicsSection() {
     const features = [
-        "Estas son algunas de las características de Oscar",
-        "Lorem Ipsum dolor sit amet consectetur",
-        "Lorem Ipsum dolor sit amet consectetur",
+        "Incentiva el reciclaje con puntos y recompensas",
+        "Reconocimiento de residuos para clasificación automática",
         "Lorem Ipsum dolor sit amet consectetur",
         "Lorem Ipsum dolor sit amet consectetur",
     ];
 
     return (
         <section className="characteristics-section">
-            <h2 className="characteristics-title">Características</h2>
+            <h2 className="characteristics-title">Sobre Oscar</h2>
             <div className="characteristics-content">
                 
                 <div className="characteristics-image-wrapper">

@@ -2,7 +2,7 @@ function ContactUsSection() {
   return (
     <section
       style={{
-        backgroundColor: "#D4D4D4",
+        backgroundColor: "#d4e9e2",
         minHeight: "380px",
         display: "flex",
         alignItems: "center",
@@ -37,7 +37,7 @@ function ContactUsSection() {
             letterSpacing: "3px",
             textTransform: "uppercase",
             color: "#666",
-            fontFamily: "'Helvetica Neue', sans-serif",
+            fontFamily: "'ABeezee', sans-serif",
             marginBottom: "16px",
           }}
         >
@@ -50,9 +50,9 @@ function ContactUsSection() {
             fontWeight: "400",
             color: "#111",
             margin: "0 0 24px 0",
-            letterSpacing: "-1px",
+            letterSpacing: "1px",
             lineHeight: "1.05",
-            fontFamily: "'Georgia', serif",
+            fontFamily: "'Cabin Condensed', serif",
           }}
         >
           Contáctanos
@@ -65,12 +65,12 @@ function ContactUsSection() {
             lineHeight: "1.75",
             margin: "0 0 44px 0",
             maxWidth: "400px",
-            fontFamily: "'Helvetica Neue', sans-serif",
+            fontFamily: "'ABeezee', sans-serif",
             fontWeight: "300",
           }}
         >
-          Desarrollamos soluciones tecnológicas a medida para empresas que buscan
-          escalar. Cuéntanos tu proyecto y te respondemos en menos de 24 horas.
+          ¿Quieres saber más sobre Oscar? ¿Tienes una idea de colaboración? ¿O solo quieres saludar?
+          Envíanos un mensaje y nos pondremos en contacto contigo lo antes posible.
         </p>
 
         {/* Contact info — email & phone only */}
@@ -83,7 +83,7 @@ function ContactUsSection() {
             },
             {
               label: "Teléfono",
-              value: "+507 600-0000",
+              value: "+507 6000-0000",
               href: "tel:+5076000000",
             },
           ].map(({ label, value, href }) => (
@@ -117,26 +117,7 @@ function ContactUsSection() {
           ))}
         </div>
 
-        {/* CTA */}
-        <div style={{ marginTop: "48px" }}>
-          <a
-            href="mailto:contacto@gzgroup.com"
-            style={{
-              display: "inline-block",
-              backgroundColor: "#111",
-              color: "#D4D4D4",
-              padding: "14px 40px",
-              fontSize: "12px",
-              letterSpacing: "2px",
-              textTransform: "uppercase",
-              textDecoration: "none",
-              fontFamily: "'Helvetica Neue', sans-serif",
-              fontWeight: "400",
-            }}
-          >
-            Iniciar conversación
-          </a>
-        </div>
+        
       </div>
 
       {/* RIGHT — GZ Logo */}
@@ -152,20 +133,10 @@ function ContactUsSection() {
       >
         {/* Small floating dot accent — matches style of original image */}
         <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            left: "-40px",
-            top: "50%",
-            width: "10px",
-            height: "10px",
-            borderRadius: "50%",
-            backgroundColor: "#111",
-            opacity: 0.7,
-          }}
+          aria-hidden="true"          
         />
         <img
-          src="" 
+          src="src\assets\mainOscar.svg" 
           alt="GZ Group"
           style={{ width: "200px", objectFit: "contain" }}
         />

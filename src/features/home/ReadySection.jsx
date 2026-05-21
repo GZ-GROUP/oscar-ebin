@@ -8,8 +8,8 @@ function ReadySection() {
             justifyContent: "center",
             padding: "80px 40px",
             textAlign: "center",
-            fontFamily: "'Helvetica Neue', sans-serif",
-        }}>
+            fontFamily: "'Cabin Condensed', sans-serif",
+            }}>
             <p style={{
                 fontSize: "11px",
                 letterSpacing: "3px",
@@ -28,7 +28,7 @@ function ReadySection() {
                 letterSpacing: "-0.5px",
                 lineHeight: "1.15",
                 maxWidth: "600px",
-            }}>
+                }}>
                 ¿Listo para Hacer la Diferencia?
             </h2>
 
@@ -39,7 +39,8 @@ function ReadySection() {
                 maxWidth: "460px",
                 margin: "0 0 48px 0",
                 fontWeight: "300",
-            }}>
+                fontFamily: "'ABeeZee', sans-serif",
+                }}>
                 Únete a la revolución del reciclaje inteligente con <strong style={{ fontWeight: "600", color: "#111" }}>Oscar E. Bin</strong>.
                 Una solución diseñada tanto para usuarios individuales como para empresas que quieren
                 reducir su huella ambiental de forma simple y medible.
@@ -50,56 +51,33 @@ function ReadySection() {
                 gap: "16px",
                 flexWrap: "wrap",
                 justifyContent: "center",
-            }}>
-                <a
-                    href="#"
+                }}>
+                <button
                     style={{
-                        display: "inline-block",
-                        backgroundColor: "#111",
+                        fontFamily: "'ABeeZee', sans-serif",
+                        fontWeight: 500,
+                        fontSize: "18px",
                         color: "#fff",
-                        padding: "15px 40px",
-                        fontSize: "13px",
-                        letterSpacing: "1.5px",
-                        textTransform: "uppercase",
-                        textDecoration: "none",
-                        fontWeight: "500",
-                        transition: "background 0.2s",
-                    }}
-                    onMouseEnter={e => e.target.style.backgroundColor = "#333"}
-                    onMouseLeave={e => e.target.style.backgroundColor = "#111"}
-                >
-                    Soy Individuo
-                </a>
-
-                <a
-                    href="#"
-                    style={{
-                        display: "inline-block",
-                        backgroundColor: "#111",
-                        color: "#fff",
-                        padding: "15px 40px",
-                        fontSize: "13px",
-                        letterSpacing: "1.5px",
-                        textTransform: "uppercase",
-                        textDecoration: "none",
-                        fontWeight: "500",
-                        transition: "background 0.2s",
-                    }}
-                    onMouseEnter={e => e.target.style.backgroundColor = "#333"}
-                    onMouseLeave={e => e.target.style.backgroundColor = "#111"}
-                >
-                    Soy Empresa
-                </a>
+                        backgroundColor: "#006241",
+                        border: "none",
+                        borderRadius: "10px",
+                        padding: "16px 32px",
+                        cursor: "pointer",
+                        boxShadow:
+                        "0px 3px 1px rgba(0,0,0,0.2), 0px 2px 2px rgba(0,0,0,0.14), 0px 1px 5px rgba(0,0,0,0.12)",
+                        transition: "background 0.2s, box-shadow 0.2s",
+                        whiteSpace: "nowrap",
+                        }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#004d33";
+                        }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "#006241";
+                        }}
+                    >
+                    Escoge tu Bin
+                </button>
             </div>
-
-            <p style={{
-                marginTop: "28px",
-                fontSize: "12px",
-                color: "#aaa",
-                letterSpacing: "0.5px",
-            }}>
-                Sin compromisos. Empieza gratis hoy.
-            </p>
         </section>
     );
 }

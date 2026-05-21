@@ -1,7 +1,7 @@
 import React from "react";
 
 import logoImg from "/src/assets/whiteGZ.svg";
-const githubIcon = "https://www.figma.com/api/mcp/asset/3424c3d2-55aa-46ef-b6e1-7b6bddf6aa34";
+const githubIcon = "/src/assets/github.svg";
 
 export default function Footer() {
   return (
@@ -71,7 +71,7 @@ export default function Footer() {
           <img
             src={githubIcon}
             alt="GitHub"
-            style={{ width: 28, height: 28 }}
+            style={{ width: 24, height: 24 }}
           />
           <span
             style={{
