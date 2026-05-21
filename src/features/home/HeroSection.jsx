@@ -1,5 +1,6 @@
 
 import React from "react";
+import { Link } from "react-router-dom";
 
 
 import oscarImg from "/src/assets/grouch.png";
@@ -51,12 +52,17 @@ export default function HeroSection() {
           contribuye al medio ambiente. Una plataforma que conecta usuarios,
           empresas y sostenibilidad.
         </p>
-
-        <button
+        <Link
+          to="/shop"
           style={{
-            fontFamily: "'Roboto', sans-serif",
-            fontWeight: 500,
-            fontSize: "18px",
+            textDecoration: "none",
+          }}
+        >
+          <button
+            style={{
+              fontFamily: "'Roboto', sans-serif",
+              fontWeight: 500,
+              fontSize: "18px",
             color: "#fff",
             backgroundColor: "#006241",
             border: "none",
@@ -74,9 +80,11 @@ export default function HeroSection() {
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = "#006241";
           }}
+          
         >
           Obten un Oscar
         </button>
+        </Link>
       </div>
 
       {/* Right: Browser mockup card */}
