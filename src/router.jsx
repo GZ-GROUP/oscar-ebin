@@ -5,6 +5,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 
 // layout
+import ScrollToTop from "./components/ScrollToTop";
 import MainLayout from "./layouts/MainLayout";
 
 // pages
@@ -21,8 +22,12 @@ import './App.css'
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <MainLayout />,
+    element: (
+      <>
+        <ScrollToTop />
+        <MainLayout />
+      </>
+    ),
     children: [
       {
         path: "",
