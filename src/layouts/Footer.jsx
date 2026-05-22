@@ -31,7 +31,7 @@ export default function Footer() {
           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
             <span
               style={{
-                fontFamily: "'Roboto', sans-serif",
+                fontFamily: "'Cabin Condensed', serif",
                 fontWeight: 700,
                 fontSize: "20px",
                 lineHeight: "32px",
@@ -43,7 +43,7 @@ export default function Footer() {
             </span>
             <span
               style={{
-                fontFamily: "'Roboto', sans-serif",
+                fontFamily: "'Cabin Condensed', serif",
                 fontWeight: 400,
                 fontSize: "14px",
                 lineHeight: "20px",
@@ -75,7 +75,7 @@ export default function Footer() {
           />
           <span
             style={{
-              fontFamily: "'Roboto', sans-serif",
+              fontFamily: "'ABeezee', sans-serif",
               fontWeight: 400,
               fontSize: "16px",
               lineHeight: "24px",
@@ -90,7 +90,7 @@ export default function Footer() {
         {/* Right: Copyright */}
         <span
           style={{
-            fontFamily: "'Roboto', sans-serif",
+            fontFamily: "'ABeezee', sans-serif",
             fontWeight: 400,
             fontSize: "14px",
             lineHeight: "20px",

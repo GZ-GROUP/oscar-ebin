@@ -94,7 +94,7 @@ function ContactUsSection() {
                   letterSpacing: "2.5px",
                   textTransform: "uppercase",
                   color: "#888",
-                  fontFamily: "'Helvetica Neue', sans-serif",
+                  fontFamily: "'ABeezee', sans-serif",
                   marginBottom: "6px",
                 }}
               >
@@ -105,7 +105,7 @@ function ContactUsSection() {
                 style={{
                   fontSize: "14px",
                   color: "#111",
-                  fontFamily: "'Helvetica Neue', sans-serif",
+                  fontFamily: "'ABeezee', sans-serif",
                   textDecoration: "none",
                   borderBottom: "1px solid #999",
                   paddingBottom: "2px",

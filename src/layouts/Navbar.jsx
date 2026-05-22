@@ -28,7 +28,7 @@ export default function Navbar() {
           />
           <span
             style={{
-              fontFamily: "'Roboto', sans-serif",
+              fontFamily: "'Cabin Condensed', serif",
               fontWeight: 700,
               fontSize: "24px",
               color: "#1e3932",
@@ -66,7 +66,7 @@ export default function Navbar() {
         <Link
           to="/signup"
           style={{
-            fontFamily: "'Roboto', sans-serif",
+            fontFamily: "'ABeezee', sans-serif",
             fontWeight: 500,
             fontSize: "18px",
             color: "#1e3932",
