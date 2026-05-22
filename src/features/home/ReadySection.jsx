@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 function ReadySection() {
     return (
         <section className="ready-section" style={{
@@ -52,31 +53,38 @@ function ReadySection() {
                 flexWrap: "wrap",
                 justifyContent: "center",
                 }}>
-                <button
+                <Link
+                    to="/shop"
                     style={{
-                        fontFamily: "'ABeeZee', sans-serif",
-                        fontWeight: 500,
-                        fontSize: "18px",
-                        color: "#fff",
-                        backgroundColor: "#006241",
-                        border: "none",
-                        borderRadius: "10px",
-                        padding: "16px 32px",
-                        cursor: "pointer",
-                        boxShadow:
-                        "0px 3px 1px rgba(0,0,0,0.2), 0px 2px 2px rgba(0,0,0,0.14), 0px 1px 5px rgba(0,0,0,0.12)",
-                        transition: "background 0.2s, box-shadow 0.2s",
-                        whiteSpace: "nowrap",
-                        }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#004d33";
-                        }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "#006241";
-                        }}
+                        textDecoration: "none",
+                    }}
                     >
-                    Escoge tu Bin
-                </button>
+                    <button
+                        style={{
+                            fontFamily: "'ABeeZee', sans-serif",
+                            fontWeight: 500,
+                            fontSize: "18px",
+                            color: "#fff",
+                            backgroundColor: "#006241",
+                            border: "none",
+                            borderRadius: "10px",
+                            padding: "16px 32px",
+                            cursor: "pointer",
+                            boxShadow:
+                            "0px 3px 1px rgba(0,0,0,0.2), 0px 2px 2px rgba(0,0,0,0.14), 0px 1px 5px rgba(0,0,0,0.12)",
+                            transition: "background 0.2s, box-shadow 0.2s",
+                            whiteSpace: "nowrap",
+                            }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "#004d33";
+                            }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "#006241";
+                            }}
+                        >
+                        Escoge tu Bin
+                    </button>
+                </Link>
             </div>
         </section>
     );

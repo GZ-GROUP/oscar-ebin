@@ -4,65 +4,70 @@ import React from "react";
 
 const plans = [
   {
-    name: "Básico",
+    name: "Plan Básico",
     price: "$29",
     featured: false,
     features: [
-      "Acceso a recursos básicos",
+      "1 máquina Oscar incluida",
+      "Dashboard de actividad básico",
+      "Hasta 500 reciclajes/mes",
+      "Reportes mensuales",
       "Soporte por email",
-      "5 usuarios incluidos",
-      "Actualizaciones mensuales",
-      "Dashboard personalizado",
-      "Reportes básicos",
-      "Almacenamiento 10GB",
+      "Historial de puntos de usuarios",
+      "Almacenamiento de datos 3 meses",
     ],
   },
   {
-    name: "Profesional",
+    name: "Plan Profesional",
     price: "$79",
     featured: true,
     features: [
-      "Todo lo del Plan Básico",
+      "Hasta 3 máquinas Oscar",
+      "Dashboard avanzado en tiempo real",
+      "Reciclajes ilimitados",
+      "Reportes semanales y exportables",
       "Soporte prioritario 24/7",
-      "20 usuarios incluidos",
-      "Actualizaciones semanales",
-      "Analytics avanzados",
-      "Integraciones ilimitadas",
-      "Almacenamiento 100GB",
+      "Gestión de puntos personalizable",
+      "Integraciones con tu app o web",
+      "Almacenamiento de datos 12 meses",
     ],
   },
   {
-    name: "Empresarial",
+    name: "Plan Empresarial",
     price: "$149",
     featured: false,
     features: [
-      "Todo lo del Plan Profesional",
+      "Máquinas Oscar ilimitadas",
+      "Dashboard multi-sede centralizado",
+      "Reciclajes ilimitados",
+      "Reportes de impacto ambiental",
       "Gerente de cuenta dedicado",
-      "Usuarios ilimitados",
-      "Actualizaciones en tiempo real",
-      "API completa",
-      "Seguridad empresarial",
-      "Almacenamiento ilimitado",
+      "API completa para integraciones",
+      "Programa de puntos white-label",
+      "Almacenamiento de datos ilimitado",
     ],
   },
 ];
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
+const FONT_HEADER = "'Cabin Condensed', sans-serif";
+const FONT_BODY   = "'ABeeZee', sans-serif";
+
 const S = {
   page: {
-    backgroundColor: "#d4e9e2",
+    backgroundColor: "#f2f0eb",
     width: "100%",
     boxSizing: "border-box",
   },
 
-  // ── Header section ──
+  // ── Section header ──
   header: {
     textAlign: "center",
     padding: "80px 35px 48px",
   },
   headerTitle: {
-    fontFamily: "'Roboto', sans-serif",
+    fontFamily: FONT_HEADER,
     fontWeight: 700,
     fontSize: "48px",
     lineHeight: "1.2",
@@ -70,7 +75,7 @@ const S = {
     margin: "0 0 16px",
   },
   headerSubtitle: {
-    fontFamily: "'Roboto', sans-serif",
+    fontFamily: FONT_BODY,
     fontWeight: 400,
     fontSize: "20px",
     lineHeight: "28px",
@@ -78,7 +83,7 @@ const S = {
     margin: 0,
   },
 
-  // ── Cards section ──
+  // ── Cards row ──
   cardsSection: {
     padding: "0 35px 80px",
     display: "flex",
@@ -88,13 +93,12 @@ const S = {
     flexWrap: "nowrap",
   },
 
-  // ── Card ──
+  // ── Individual card ──
   card: (featured) => ({
     display: "flex",
     flexDirection: "column",
     borderRadius: "20px",
     overflow: "hidden",
-    // featured card gets a stronger shadow instead of the translateY lift
     boxShadow: featured
       ? "0px 20px 25px -5px rgba(0,0,0,0.15), 0px 8px 10px -6px rgba(0,0,0,0.15)"
       : "0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px -4px rgba(0,0,0,0.1)",
@@ -103,33 +107,46 @@ const S = {
     boxSizing: "border-box",
   }),
 
-
+  // Fixed height so all three headers line up regardless of name length
   cardHeader: {
-    backgroundColor: "#00c785",
-    padding: "32px",
+    backgroundColor: "#2b5148",
+    padding: "28px 32px",
+    height: "140px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
     textAlign: "center",
+    boxSizing: "border-box",
+    gap: "8px",
   },
-  cardName: (featured) => ({
-    fontFamily: "'Roboto', sans-serif",
-    fontWeight: 600,
-    fontSize: featured ? "40px" : "36px",
+  cardName: {
+    fontFamily: FONT_HEADER,
+    fontWeight: 700,
+    fontSize: "28px",
     lineHeight: "1.2",
-    color: "#006241",
-    margin: "0 0 12px",
-  }),
-  cardPrice: (featured) => ({
-    fontFamily: "'Roboto', sans-serif",
-    fontWeight: 400,
-    fontSize: featured ? "40px" : "36px",
-    lineHeight: "1.2",
-    color: "#2b5148",
+    color: "#fff",
     margin: 0,
-  }),
+  },
+  cardPrice: {
+    fontFamily: FONT_HEADER,
+    fontWeight: 400,
+    fontSize: "32px",
+    lineHeight: "1.2",
+    color: "#d4e9e2",
+    margin: 0,
+  },
+  cardPriceSuffix: {
+    fontSize: "15px",
+    color: "#a8c8be",
+    fontFamily: FONT_BODY,
+  },
 
+  // ── Feature list ──
   cardBody: {
     backgroundColor: "#edebe9",
     flex: 1,
-    padding: "48px 32px 32px",
+    padding: "36px 32px 24px",
   },
   featureList: {
     listStyle: "none",
@@ -137,28 +154,29 @@ const S = {
     padding: 0,
     display: "flex",
     flexDirection: "column",
-    gap: "16px",
+    gap: "14px",
   },
   featureItem: {
     display: "flex",
     alignItems: "flex-start",
-    gap: "12px",
+    gap: "10px",
   },
   featureBullet: {
-    fontFamily: "'Roboto', sans-serif",
-    fontSize: "20px",
+    fontFamily: FONT_BODY,
+    fontSize: "18px",
     color: "#006241",
-    lineHeight: "28px",
+    lineHeight: "26px",
     flexShrink: 0,
   },
   featureText: {
-    fontFamily: "'Roboto', sans-serif",
+    fontFamily: FONT_BODY,
     fontWeight: 400,
-    fontSize: "18px",
-    lineHeight: "28px",
+    fontSize: "16px",
+    lineHeight: "26px",
     color: "#004d33",
   },
 
+  // ── Card footer ──
   cardFooter: {
     backgroundColor: "#edebe9",
     padding: "16px 32px 32px",
@@ -169,22 +187,23 @@ const S = {
     color: "#fff",
     border: "none",
     borderRadius: "15px",
-    padding: "18px 24px",
-    fontFamily: "'Roboto', sans-serif",
-    fontWeight: 500,
-    fontSize: "20px",
+    padding: "16px 24px",
+    fontFamily: FONT_HEADER,
+    fontWeight: 700,
+    fontSize: "18px",
     cursor: "pointer",
     transition: "background 0.2s",
+    letterSpacing: "0.03em",
   },
 
-  // ── CTA section ──
+  // ── CTA banner ──
   cta: {
     backgroundColor: "#2b5148",
     padding: "64px 35px",
     textAlign: "center",
   },
   ctaTitle: {
-    fontFamily: "'Roboto', sans-serif",
+    fontFamily: FONT_HEADER,
     fontWeight: 700,
     fontSize: "40px",
     lineHeight: "1.2",
@@ -192,7 +211,7 @@ const S = {
     margin: "0 0 16px",
   },
   ctaSubtitle: {
-    fontFamily: "'Roboto', sans-serif",
+    fontFamily: FONT_BODY,
     fontWeight: 400,
     fontSize: "18px",
     lineHeight: "28px",
@@ -205,11 +224,12 @@ const S = {
     border: "none",
     borderRadius: "10px",
     padding: "16px 32px",
-    fontFamily: "'Roboto', sans-serif",
-    fontWeight: 600,
+    fontFamily: FONT_HEADER,
+    fontWeight: 700,
     fontSize: "18px",
     cursor: "pointer",
     transition: "opacity 0.2s",
+    letterSpacing: "0.03em",
   },
 };
 
@@ -220,7 +240,7 @@ export default function Shop() {
     <div style={S.page}>
       {/* Section header */}
       <div style={S.header}>
-        <h2 style={S.headerTitle}>Nuestros Planes</h2>
+        <h2 style={S.headerTitle}>Impulsa el Cambio con Oscar</h2>
         <p style={S.headerSubtitle}>
           Selecciona la opción que mejor se adapte a tus necesidades
         </p>
@@ -230,13 +250,17 @@ export default function Shop() {
       <div style={S.cardsSection}>
         {plans.map((plan) => (
           <div key={plan.name} style={S.card(plan.featured)}>
-            {/* Card header */}
+
+            {/* Card header — fixed height keeps all three aligned */}
             <div style={S.cardHeader}>
-              <p style={S.cardName(plan.featured)}>{plan.name}</p>
-              <p style={S.cardPrice(plan.featured)}>{plan.price}<span style={{ fontSize: "16px", color: "#2b5148" }}>/mes</span></p>
+              <p style={S.cardName}>{plan.name}</p>
+              <p style={S.cardPrice}>
+                {plan.price}
+                <span style={S.cardPriceSuffix}>/mes</span>
+              </p>
             </div>
 
-            {/* Features list */}
+            {/* Features */}
             <div style={S.cardBody}>
               <ul style={S.featureList}>
                 {plan.features.map((feature) => (
@@ -248,7 +272,7 @@ export default function Shop() {
               </ul>
             </div>
 
-            {/* CTA button */}
+            {/* Button */}
             <div style={S.cardFooter}>
               <button
                 style={S.planButton}
@@ -258,6 +282,7 @@ export default function Shop() {
                 Quiero este Plan
               </button>
             </div>
+
           </div>
         ))}
       </div>
