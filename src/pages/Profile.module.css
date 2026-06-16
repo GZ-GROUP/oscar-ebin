@@ -1,0 +1,295 @@
+/* =============================================
+    Profile.module.css — OSCAR Profile Page
+   ============================================= */
+
+.page {
+    min-height: 100vh;
+    background-color: #e8ede4;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 24px;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* ── Main card wrapper ── */
+.card {
+    background-color: #f0f4ee;
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 32px;
+    box-shadow: 0 2px 16px rgba(45, 90, 60, 0.09);
+}
+
+/* =============================================
+    SIDEBAR
+   ============================================= */
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatarWrapper {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 3px solid #3d7a56;
+    overflow: hidden;
+    background-color: #c5d9c8;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.avatar {
+    width: 100%;
+    height: 100%;
+}
+
+/* Name + edit row */
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.userName {
+    font-family: 'Cabin Condensed', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1a2e1a;
+}
+
+.nameInput {
+    font-family: 'Cabin Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a2e1a;
+    border: 1.5px solid #3d7a56;
+    border-radius: 6px;
+    padding: 2px 8px;
+    background: #fff;
+    width: 140px;
+    outline: none;
+}
+
+.editBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #3d7a56;
+    padding: 3px 5px;
+    border-radius: 4px;
+    transition: background 0.18s;
+    line-height: 1;
+}
+
+.editBtn:hover {
+    background: #c5d9c8;
+}
+
+/* Navigation buttons */
+.sideNav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 6px;
+}
+
+.navBtn {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #2d5a3c;
+    border-radius: 8px;
+    background: transparent;
+    color: #2d5a3c;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.18s, color 0.18s;
+}
+
+.navBtn:hover {
+    background: #2d5a3c;
+    color: #fff;
+}
+
+.navBtnActive {
+    background: #2d5a3c;
+    color: #fff;
+}
+
+/* =============================================
+    MAIN CONTENT AREA
+   ============================================= */
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Stats row ── */
+.statsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.statCard {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+    box-shadow: 0 1px 5px rgba(45, 90, 60, 0.07);
+}
+
+.statLabel {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.88rem;
+    color: #5a6e5a;
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+}
+
+.statNumber {
+    font-family: 'Cabin Condensed', sans-serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #2d5a3c;
+    line-height: 1;
+}
+
+/* ── Content row (activity list + chart) ── */
+.contentRow {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 16px;
+}
+
+/* =============================================
+    ACTIVITY LIST
+   ============================================= */
+
+.activityList {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(45, 90, 60, 0.06);
+}
+
+.activityItem {
+    padding: 10px 16px 12px;
+    border-bottom: 1px solid #e4ece4;
+    transition: background 0.15s;
+}
+
+.activityItem:last-child {
+    border-bottom: none;
+}
+
+.activityItem:hover {
+    background: #f5faf5;
+}
+
+.activityMeta {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 5px;
+}
+
+.activityDate {
+    font-size: 0.73rem;
+    color: #8fa08f;
+    font-family: 'Roboto', sans-serif;
+}
+
+.activityBody {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.activityIcon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background: #e4f0e6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.activityTitle {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #1a2e1a;
+    margin-bottom: 2px;
+}
+
+.activityDesc {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.78rem;
+    color: #5a6e5a;
+}
+
+/* =============================================
+    CHART PLACEHOLDER
+   ============================================= */
+
+.chartPlaceholder {
+    background: #fff;
+    border-radius: 12px;
+    border: 2px dashed #b2cdb8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    box-shadow: 0 1px 4px rgba(45, 90, 60, 0.06);
+}
+
+.chartInner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+}
+
+.chartIcon {
+    font-size: 2.8rem;
+    opacity: 0.45;
+}
+
+.chartTitle {
+    font-family: 'Cabin Condensed', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #3d7a56;
+    text-align: center;
+}
+
+.chartSub {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.78rem;
+    color: #8fa08f;
+    text-align: center;
+}
