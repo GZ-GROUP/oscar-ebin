@@ -1,15 +1,6 @@
-import React, { useState } from "react";
-
-const mockData = [
-  { rank: 1, name: "María González", points: 4820, badges: 12, kg: 96.4, avatar: "MG" },
-  { rank: 2, name: "Carlos Méndez",  points: 3975, badges: 9,  kg: 79.5, avatar: "CM" },
-  { rank: 3, name: "Sofía Ramírez",  points: 3610, badges: 11, kg: 72.2, avatar: "SR" },
-  { rank: 4, name: "Diego Torres",   points: 2890, badges: 7,  kg: 57.8, avatar: "DT" },
-  { rank: 5, name: "Lucía Herrera",  points: 2540, badges: 6,  kg: 50.8, avatar: "LH" },
-  { rank: 6, name: "Andrés Pérez",   points: 2210, badges: 5,  kg: 44.2, avatar: "AP" },
-  { rank: 7, name: "Valentina Cruz", points: 1980, badges: 4,  kg: 39.6, avatar: "VC" },
-  { rank: 8, name: "Mateo Ruiz",     points: 1740, badges: 4,  kg: 34.8, avatar: "MR" },
-];
+import React, { useEffect, useState } from "react";
+import { apiCall } from "../services/api";
+import { getStoredUser } from "../services/authService";
 
 const PALETTE = {
   bg:         "#f2f0eb",
@@ -28,13 +19,27 @@ const medals = ["🥇", "🥈", "🥉"];
 const podiumHeights = [180, 140, 110];
 const podiumColors  = ["#006241", "#2b5148", "#3a6b5f"];
 
+function getInitials(name) {
+  if (!name) return "U";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 function Podium({ data }) {
-  const top3 = data.slice(0, 3);
-  // reorder: 2nd, 1st, 3rd
-  const order = [top3[1], top3[0], top3[2]];
-  const heights = [podiumHeights[1], podiumHeights[0], podiumHeights[2]];
-  const colors  = [podiumColors[1],  podiumColors[0],  podiumColors[2]];
-  const ranks   = [2, 1, 3];
+  const top3 = data.slice(0, 3).filter(Boolean);
+  if (top3.length === 0) {
+    return null;
+  }
+
+  const order = top3.length === 3 ? [top3[1], top3[0], top3[2]] : top3;
+  const heights = [podiumHeights[1], podiumHeights[0], podiumHeights[2]].slice(0, order.length);
+  const colors = [podiumColors[1], podiumColors[0], podiumColors[2]].slice(0, order.length);
+  const ranks = [2, 1, 3].slice(0, order.length);
 
   return (
     <div style={{
@@ -44,84 +49,90 @@ function Podium({ data }) {
       gap: "12px",
       marginBottom: "48px",
     }}>
-      {order.map((user, i) => (
-        <div key={user.rank} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-          {/* Avatar */}
-          <div style={{
-            width: ranks[i] === 1 ? "72px" : "56px",
-            height: ranks[i] === 1 ? "72px" : "56px",
-            borderRadius: "50%",
-            backgroundColor: PALETTE.mint,
-            border: `3px solid ${PALETTE.border}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: "'Cabin Condensed', sans-serif",
-            fontWeight: 700,
-            fontSize: ranks[i] === 1 ? "22px" : "17px",
-            color: PALETTE.dark,
-            boxShadow: ranks[i] === 1 ? `0 0 0 4px ${PALETTE.green}33` : "none",
-            transition: "transform 0.2s",
-          }}>
-            {user.avatar}
-          </div>
+      {order.map((user, i) => {
+        const displayName = user?.name?.split(" ")[0] || user?.username || "Usuario";
+        const rankNumber = typeof user?.rank === "number" ? user.rank : top3.indexOf(user) + 1;
 
-          {/* Medal */}
-          <span style={{ fontSize: ranks[i] === 1 ? "28px" : "22px", lineHeight: 1 }}>
-            {medals[ranks[i] - 1]}
-          </span>
-
-          {/* Name */}
-          <span style={{
-            fontFamily: "'Cabin Condensed', sans-serif",
-            fontWeight: 600,
-            fontSize: "13px",
-            color: PALETTE.dark,
-            textAlign: "center",
-            maxWidth: "80px",
-            lineHeight: 1.2,
-          }}>
-            {user.name.split(" ")[0]}
-          </span>
-
-          {/* Points */}
-          <span style={{
-            fontFamily: "'ABeeZee', sans-serif",
-            fontSize: "12px",
-            color: PALETTE.green,
-            fontWeight: 600,
-          }}>
-            {user.points.toLocaleString()} pts
-          </span>
-
-          {/* Podium block */}
-          <div style={{
-            width: "90px",
-            height: `${heights[i]}px`,
-            backgroundColor: colors[i],
-            borderRadius: "8px 8px 0 0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "inset 0 4px 12px rgba(255,255,255,0.1)",
-          }}>
-            <span style={{
+        return (
+          <div key={user?.rank ?? i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+            <div style={{
+              width: ranks[i] === 1 ? "72px" : "56px",
+              height: ranks[i] === 1 ? "72px" : "56px",
+              borderRadius: "50%",
+              backgroundColor: PALETTE.mint,
+              border: `3px solid ${PALETTE.border}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               fontFamily: "'Cabin Condensed', sans-serif",
               fontWeight: 700,
-              fontSize: "28px",
-              color: "rgba(255,255,255,0.3)",
+              fontSize: ranks[i] === 1 ? "22px" : "17px",
+              color: PALETTE.dark,
+              boxShadow: ranks[i] === 1 ? `0 0 0 4px ${PALETTE.green}33` : "none",
+              transition: "transform 0.2s",
             }}>
-              {ranks[i]}
+              {user.profile_image_url ? (
+                <img
+                  src={user.profile_image_url}
+                  alt={`${displayName} avatar`}
+                  style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+                />
+              ) : (
+                getInitials(user.name || user.username)
+              )}
+            </div>
+
+            <span style={{ fontSize: ranks[i] === 1 ? "28px" : "22px", lineHeight: 1 }}>
+              {medals[ranks[i] - 1]}
             </span>
+
+            <span style={{
+              fontFamily: "'Cabin Condensed', sans-serif",
+              fontWeight: 600,
+              fontSize: "13px",
+              color: PALETTE.dark,
+              textAlign: "center",
+              maxWidth: "80px",
+              lineHeight: 1.2,
+            }}>
+              {displayName}
+            </span>
+
+            <div style={{
+              width: "90px",
+              height: `${heights[i]}px`,
+              backgroundColor: colors[i],
+              borderRadius: "8px 8px 0 0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "inset 0 4px 12px rgba(255,255,255,0.1)",
+            }}>
+              <span style={{
+                fontFamily: "'Cabin Condensed', sans-serif",
+                fontWeight: 700,
+                fontSize: "28px",
+                color: "rgba(255,255,255,0.3)",
+              }}>
+                {rankNumber ?? "-"}
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
-function RankRow({ user, isCurrentUser }) {
+function RankRow({ user, isCurrentUser, maxPoints, rankIndex }) {
   const [hovered, setHovered] = useState(false);
+  const avatarText = user.profile_image_url ? null : user.avatar || getInitials(user.name || user.username);
+  const rawRank = user.rank;
+  const parsedRank = rawRank != null && rawRank !== "" && !Number.isNaN(Number(rawRank))
+    ? Number(rawRank)
+    : null;
+  const rankNumber = typeof parsedRank === "number" ? parsedRank : rankIndex;
+  const displayName = user.name || user.username || "Usuario";
 
   return (
     <div
@@ -143,19 +154,17 @@ function RankRow({ user, isCurrentUser }) {
         cursor: "default",
       }}
     >
-      {/* Rank number */}
       <div style={{
         width: "32px",
         fontFamily: "'Cabin Condensed', sans-serif",
         fontWeight: 700,
         fontSize: "18px",
-        color: user.rank <= 3 ? PALETTE.green : PALETTE.border,
+        color: rankNumber != null && rankNumber <= 3 ? PALETTE.green : PALETTE.border,
         flexShrink: 0,
       }}>
-        {user.rank <= 3 ? medals[user.rank - 1] : `#${user.rank}`}
+        {rankNumber != null && rankNumber >= 1 && rankNumber <= 3 ? medals[rankNumber - 1] : `#${rankNumber ?? "-"}`}
       </div>
 
-      {/* Avatar */}
       <div style={{
         width: "40px",
         height: "40px",
@@ -172,10 +181,17 @@ function RankRow({ user, isCurrentUser }) {
         marginRight: "14px",
         flexShrink: 0,
       }}>
-        {user.avatar}
+        {user.profile_image_url ? (
+          <img
+            src={user.profile_image_url}
+            alt={`${user.name} avatar`}
+            style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+          />
+        ) : (
+          avatarText
+        )}
       </div>
 
-      {/* Name */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
           fontFamily: "'Cabin Condensed', sans-serif",
@@ -186,7 +202,7 @@ function RankRow({ user, isCurrentUser }) {
           overflow: "hidden",
           textOverflow: "ellipsis",
         }}>
-          {user.name}
+          {displayName}
           {isCurrentUser && (
             <span style={{
               marginLeft: "8px",
@@ -209,11 +225,10 @@ function RankRow({ user, isCurrentUser }) {
           color: PALETTE.border,
           marginTop: "2px",
         }}>
-          {user.badges} insignias · {user.kg} kg reciclados
+          {user.badges ?? 0} insignias · {user.kg ?? 0} kg reciclados
         </div>
       </div>
 
-      {/* Progress bar */}
       <div style={{ width: "100px", margin: "0 20px", flexShrink: 0 }}>
         <div style={{
           height: "6px",
@@ -223,7 +238,7 @@ function RankRow({ user, isCurrentUser }) {
         }}>
           <div style={{
             height: "100%",
-            width: `${Math.round((user.points / mockData[0].points) * 100)}%`,
+            width: `${Math.round(((user.points ?? 0) / Math.max(maxPoints, 1)) * 100)}%`,
             backgroundColor: PALETTE.green,
             borderRadius: "3px",
             transition: "width 0.4s ease",
@@ -231,7 +246,6 @@ function RankRow({ user, isCurrentUser }) {
         </div>
       </div>
 
-      {/* Points */}
       <div style={{
         fontFamily: "'Cabin Condensed', sans-serif",
         fontWeight: 700,
@@ -241,7 +255,7 @@ function RankRow({ user, isCurrentUser }) {
         textAlign: "right",
         flexShrink: 0,
       }}>
-        {user.points.toLocaleString()}
+        {(user.points ?? 0).toLocaleString()}
         <span style={{
           fontFamily: "'ABeeZee', sans-serif",
           fontWeight: 400,
@@ -257,7 +271,67 @@ function RankRow({ user, isCurrentUser }) {
 }
 
 export default function Leaderboard() {
-  const currentUserRank = 4; // Simula que el usuario actual es el #4
+  const [rankingData, setRankingData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const currentUser = getStoredUser();
+
+  useEffect(() => {
+    const fetchRanking = async () => {
+      try {
+        const result = await apiCall("/ranking");
+        const data = result.ranking || result.data || result;
+        setRankingData(Array.isArray(data) ? data : []);
+      } catch (fetchError) {
+        setError(fetchError.message || "Error al cargar el ranking");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRanking();
+  }, []);
+
+  const ranking = rankingData.length ? rankingData : [];
+  const maxPoints = ranking[0]?.points || 1;
+  const currentUserRank = ranking.find((user) => {
+    if (!currentUser) return false;
+    return (
+      user.email === currentUser.email ||
+      user.username === currentUser.username ||
+      user.name === currentUser.name
+    );
+  })?.rank || null;
+
+  if (loading) {
+    return (
+      <section style={{ backgroundColor: PALETTE.bg, minHeight: "100vh", padding: "60px 24px", boxSizing: "border-box" }}>
+        <div style={{ maxWidth: "720px", margin: "0 auto" }}>
+          <p style={{ fontFamily: "'ABeeZee', sans-serif", fontSize: "18px", color: PALETTE.text }}>Cargando ranking...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section style={{ backgroundColor: PALETTE.bg, minHeight: "100vh", padding: "60px 24px", boxSizing: "border-box" }}>
+        <div style={{ maxWidth: "720px", margin: "0 auto" }}>
+          <p style={{ fontFamily: "'ABeeZee', sans-serif", fontSize: "18px", color: "#d32f2f" }}>{error}</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!ranking.length) {
+    return (
+      <section style={{ backgroundColor: PALETTE.bg, minHeight: "100vh", padding: "60px 24px", boxSizing: "border-box" }}>
+        <div style={{ maxWidth: "720px", margin: "0 auto", textAlign: "center" }}>
+          <p style={{ fontFamily: "'ABeeZee', sans-serif", fontSize: "18px", color: PALETTE.text }}>No hay ranking disponible en este momento.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section style={{
@@ -271,7 +345,6 @@ export default function Leaderboard() {
         margin: "0 auto",
       }}>
 
-        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "48px" }}>
           <h1 style={{
             fontFamily: "'Cabin Condensed', sans-serif",
@@ -293,10 +366,8 @@ export default function Leaderboard() {
           </p>
         </div>
 
-        {/* Podium */}
-        <Podium data={mockData} />
+        <Podium data={ranking} />
 
-        {/* Divider */}
         <div style={{
           display: "flex",
           alignItems: "center",
@@ -316,18 +387,18 @@ export default function Leaderboard() {
           <div style={{ flex: 1, height: "1px", backgroundColor: PALETTE.border, opacity: 0.25 }} />
         </div>
 
-        {/* List */}
         <div>
-          {mockData.map((user) => (
+          {ranking.map((user, index) => (
             <RankRow
-              key={user.rank}
+              key={user.rank ?? user.email ?? user.name ?? index}
               user={user}
+              rankIndex={index + 1}
               isCurrentUser={user.rank === currentUserRank}
+              maxPoints={maxPoints}
             />
           ))}
         </div>
 
-        {/* Footer note */}
         <p style={{
           fontFamily: "'ABeeZee', sans-serif",
           fontSize: "13px",

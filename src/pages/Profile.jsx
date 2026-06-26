@@ -1,38 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { apiCall } from "../services/api";
 import styles from "./Profile.module.css";
 
-// ── Placeholder data (reemplazar con datos reales / API) ──
-const mockUser = {
-    name: "Juan García",
-    totalReciclado: 6,
-    puntosCanjeables: 30,
-    actividades: [
-        {
-            id: 1,
-            fecha: "12 Jun 2025",
-            titulo: "Plástico reciclado",
-            descripcion: "Botella PET clasificada correctamente",
-        },
-        {
-            id: 2,
-            fecha: "10 Jun 2025",
-            titulo: "Vidrio reciclado",
-            descripcion: "Frasco de vidrio depositado",
-        },
-        {
-            id: 3,
-            fecha: "8 Jun 2025",
-            titulo: "Papel reciclado",
-            descripcion: "Caja de cartón procesada",
-        },
-        {
-            id: 4,
-            fecha: "5 Jun 2025",
-            titulo: "Metal reciclado",
-            descripcion: "Lata de aluminio clasificada",
-        },
-    ],
-};
+function getInitials(name) {
+    if (!name) return "U";
+    return name
+        .split(" ")
+        .filter(Boolean)
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+}
+
+function ProfileAvatar({ name, imageUrl }) {
+    if (imageUrl) {
+        return (
+            <img
+                src={imageUrl}
+                alt={`${name || "Perfil"} avatar`}
+                style={{
+                    width: "96px",
+                    height: "96px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    backgroundColor: "#e7f2ed",
+                }}
+            />
+        );
+    }
+
+    return (
+        <div
+            style={{
+                width: "96px",
+                height: "96px",
+                borderRadius: "50%",
+                display: "grid",
+                placeItems: "center",
+                backgroundColor: "#d4e9e2",
+                color: "#1e3932",
+                fontSize: "32px",
+                fontWeight: 700,
+            }}
+        >
+            {getInitials(name)}
+        </div>
+    );
+}
 
 // ── Icono de reciclaje inline (sin dependencias externas) ──
 function RecycleIcon() {
@@ -75,16 +90,66 @@ function GearIcon() {
 }
 
 export default function Profile() {
-    const [userName, setUserName] = useState(mockUser.name);
+    const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
     const [isEditing, setIsEditing] = useState(false);
-    const [editValue, setEditValue] = useState(mockUser.name);
+    const [editValue, setEditValue] = useState("");
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const result = await apiCall("/profile");
+                const data = result.data || result;
+                setUserData(data);
+                setEditValue(data?.user?.name || "");
+            } catch (fetchError) {
+                setError(fetchError.message || "Error al cargar el perfil");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, []);
 
     const handleEditToggle = () => {
-        if (isEditing) {
-            setUserName(editValue.trim() || userName);
+        if (isEditing && editValue.trim()) {
+            setUserData((prev) =>
+                prev ? { ...prev, user: { ...prev.user, name: editValue.trim() } } : prev
+            );
         }
         setIsEditing((prev) => !prev);
     };
+
+    const user = userData?.user;
+    const activities = userData?.trash_items_by_type || [];
+    const pointsAvailable = userData?.points_available ?? 0;
+    const pointsTotal = userData?.points_earned_total ?? 0;
+    const sessionsCompleted = userData?.sessions_completed ?? 0;
+    const rewardsClaimed = userData?.rewards_claimed ?? 0;
+
+    if (loading) {
+        return (
+            <div className={styles.page}>
+                <div className={styles.card}>
+                    <p style={{ padding: "24px", fontSize: "18px" }}>Cargando perfil...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={styles.page}>
+                <div className={styles.card}>
+                    <p style={{ padding: "24px", fontSize: "18px", color: "#d32f2f" }}>
+                        {error}
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.page}>
@@ -95,10 +160,7 @@ export default function Profile() {
 
                     {/* Avatar */}
                     <div className={styles.avatarWrapper}>
-                        <svg className={styles.avatar} viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="48" cy="36" r="22" fill="#3d7a56" />
-                            <ellipse cx="48" cy="88" rx="34" ry="24" fill="#3d7a56" />
-                        </svg>
+                        <ProfileAvatar name={user?.name} imageUrl={user?.profile_image_url} />
                     </div>
 
                     {/* Nombre editable */}
@@ -112,7 +174,7 @@ export default function Profile() {
                                 autoFocus
                             />
                         ) : (
-                            <span className={styles.userName}>{userName}</span>
+                            <span className={styles.userName}>{user?.name || "Usuario"}</span>
                         )}
                         <button
                             className={styles.editBtn}
@@ -121,6 +183,11 @@ export default function Profile() {
                         >
                             {isEditing ? <CheckIcon /> : <PencilIcon />}
                         </button>
+                    </div>
+
+                    <div className={styles.profileMeta}>
+                        <p>{user?.email || "Sin email"}</p>
+                        <p>{user?.is_company ? "Cuenta de empresa" : "Cuenta personal"}</p>
                     </div>
 
                     {/* Navegación lateral */}
@@ -141,44 +208,62 @@ export default function Profile() {
                     {/* Estadísticas */}
                     <div className={styles.statsRow}>
                         <div className={styles.statCard}>
-                            <p className={styles.statLabel}>Total reciclado</p>
-                            <p className={styles.statNumber}>{mockUser.totalReciclado}</p>
+                            <p className={styles.statLabel}>Sesiones completadas</p>
+                            <p className={styles.statNumber}>{sessionsCompleted}</p>
                         </div>
                         <div className={styles.statCard}>
-                            <p className={styles.statLabel}>Puntos canjeables</p>
-                            <p className={styles.statNumber}>{mockUser.puntosCanjeables}</p>
+                            <p className={styles.statLabel}>Puntos disponibles</p>
+                            <p className={styles.statNumber}>{pointsAvailable}</p>
                         </div>
                     </div>
 
-                    {/* Lista de actividad + Gráfica */}
+                    <div className={styles.statsRow} style={{ marginTop: "16px" }}>
+                        <div className={styles.statCard}>
+                            <p className={styles.statLabel}>Puntos ganados totales</p>
+                            <p className={styles.statNumber}>{pointsTotal}</p>
+                        </div>
+                        <div className={styles.statCard}>
+                            <p className={styles.statLabel}>Recompensas reclamadas</p>
+                            <p className={styles.statNumber}>{rewardsClaimed}</p>
+                        </div>
+                    </div>
+
+                    {/* Lista de actividad + Residuos */}
                     <div className={styles.contentRow}>
 
-                        {/* Lista de actividades recientes */}
                         <div className={styles.activityList}>
-                            {mockUser.actividades.map((item) => (
-                                <div key={item.id} className={styles.activityItem}>
-                                    <div className={styles.activityMeta}>
-                                        <span className={styles.activityDate}>{item.fecha}</span>
-                                    </div>
-                                    <div className={styles.activityBody}>
-                                        <div className={styles.activityIcon}>
-                                            <RecycleIcon />
+                            <h2 style={{ fontFamily: "'Cabin Condensed', sans-serif", fontSize: "22px", marginBottom: "18px" }}>
+                                Residuos por tipo
+                            </h2>
+                            {activities.length ? (
+                                activities.map((item, index) => (
+                                    <div key={item.name || index} className={styles.activityItem}>
+                                        <div className={styles.activityMeta}>
+                                            <span className={styles.activityDate}>{item.name}</span>
                                         </div>
-                                        <div>
-                                            <p className={styles.activityTitle}>{item.titulo}</p>
-                                            <p className={styles.activityDesc}>{item.descripcion}</p>
+                                        <div className={styles.activityBody}>
+                                            <div className={styles.activityIcon}>
+                                                <RecycleIcon />
+                                            </div>
+                                            <div>
+                                                <p className={styles.activityTitle}>{item.count} unidades</p>
+                                                <p className={styles.activityDesc}>Cantidad recogida</p>
+                                            </div>
                                         </div>
                                     </div>
+                                ))
+                            ) : (
+                                <div className={styles.activityItem}>
+                                    <p className={styles.activityDesc}>No hay registros de residuos disponibles.</p>
                                 </div>
-                            ))}
+                            )}
                         </div>
 
-                        {/* Placeholder de gráfica */}
                         <div className={styles.chartPlaceholder}>
                             <div className={styles.chartInner}>
                                 <span className={styles.chartIcon}>📊</span>
-                                <p className={styles.chartTitle}>Gráfica de reciclaje</p>
-                                <p className={styles.chartSub}>Próximamente disponible</p>
+                                <p className={styles.chartTitle}>Resumen mensual</p>
+                                <p className={styles.chartSub}>Datos reales cargados desde la API</p>
                             </div>
                         </div>
 

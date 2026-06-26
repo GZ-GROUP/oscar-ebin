@@ -17,6 +17,7 @@ import Shop from './pages/Shop/Shop';
 import Profile from './pages/Profile';
 import Leaderboard from './pages/Leaderboard';
 import Panel from './pages/Panel';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css'
 
 
@@ -51,7 +52,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "profile",
-        element: <Profile />,
+        element: (
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "leaderboard",

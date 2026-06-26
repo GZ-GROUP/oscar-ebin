@@ -37,16 +37,18 @@ export default function SignUpPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSuccessMessage("");
+    setErrors({});
     
     if (validateInputs()) {
       setLoading(true);
       try {
         const result = await signUp(name, email, password);
         setSuccessMessage(result.message || "¡Cuenta creada exitosamente!");
-        setName("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
+        
+        // Redirigir al login después de 2 segundos
+        setTimeout(() => {
+          window.location.href = "/signin";
+        }, 2000);
       } catch (error) {
         setErrors({ submit: error.message || "Error al registrarse" });
       } finally {

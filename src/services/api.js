@@ -9,6 +9,12 @@ export const apiCall = async (endpoint, method = "GET", data = null) => {
     },
   };
 
+  // Agregar token de autenticación si está disponible
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    options.headers["Authorization"] = `Bearer ${token}`;
+  }
+
   if (data && (method === "POST" || method === "PUT")) {
     options.body = JSON.stringify(data);
   }
@@ -28,6 +34,13 @@ export const apiCall = async (endpoint, method = "GET", data = null) => {
     }
 
     if (!response.ok) {
+      // Si es 401, limpiar tokens y redirigir al login
+      if (response.status === 401) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user");
+        window.location.href = "/signin";
+      }
       throw new Error(result.message || "Error en la solicitud");
     }
 
