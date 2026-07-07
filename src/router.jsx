@@ -14,6 +14,7 @@ import SignIn from "./pages/Auth/SignInPage";
 import SignUp from "./pages/Auth/SignUpPage";
 import AboutUs from './pages/AboutUs';
 import Shop from './pages/Shop/Shop';
+import Checkout from './pages/Shop/Checkout';
 import Profile from './pages/Profile';
 import Leaderboard from './pages/Leaderboard';
 import Panel from './pages/Panel';
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
       {
         path: "shop",
         element: <Shop />,
+      },
+      {
+        path: "checkout",
+        element: <Checkout />,
       },
       {
         path: "profile",

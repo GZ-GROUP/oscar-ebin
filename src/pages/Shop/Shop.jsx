@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -236,6 +237,12 @@ const S = {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function Shop() {
+  const navigate = useNavigate();
+
+  const handleSelectPlan = (plan) => {
+    navigate("/checkout", { state: { plan } });
+  };
+
   return (
     <div style={S.page}>
       {/* Section header */}
@@ -276,6 +283,7 @@ export default function Shop() {
             <div style={S.cardFooter}>
               <button
                 style={S.planButton}
+                onClick={() => handleSelectPlan(plan)}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1e3932")}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2b5148")}
               >
