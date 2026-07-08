@@ -84,7 +84,7 @@ export default function Navbar() {
 
           {/* ¿Cómo Funciona? → scroll a #how-to */}
           <a
-            href="#how-to"
+            href="/#how-to"
             style={navLinkStyle}
             onMouseEnter={hoverOn}
             onMouseLeave={hoverOff}
@@ -94,7 +94,7 @@ export default function Navbar() {
 
           {/* Características → scroll a #characteristics */}
           <a
-            href="#characteristics"
+            href="/#characteristics"
             style={navLinkStyle}
             onMouseEnter={hoverOn}
             onMouseLeave={hoverOff}
