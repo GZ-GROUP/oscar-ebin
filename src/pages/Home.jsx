@@ -9,19 +9,15 @@ import Footer from "../layouts/Footer";
 import React from 'react';
     
     function Home() {
-        return(
-                <div className="home">
-                    <HeroSection />
-                    <BrandsSection />
-                    <HowToSection />
-                    <CharacteristicsSection />
-                    <ReadySection />
-                    <ContactUsSection />
-
-                </div>
-
-        )
-        
-    }
-
+  return (
+    <div className="home">
+      <HeroSection />
+      <BrandsSection />
+      <div id="how-to"><HowToSection /></div>
+      <div id="characteristics"><CharacteristicsSection /></div>
+      <ReadySection />
+      <div id="contact"><ContactUsSection /></div>
+    </div>
+  );
+}
     export default Home;
