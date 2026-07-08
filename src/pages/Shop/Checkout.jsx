@@ -1,11 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaLock, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
+import { FaLock, FaArrowLeft, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
 // ─── Font constants ───────────────────────────────────────────────────────────
 const FONT_HEADER = "'Cabin Condensed', sans-serif";
 const FONT_BODY   = "'ABeeZee', sans-serif";
 const FONT_MONO   = "'Courier New', monospace";
+
+// ─── Luhn algorithm ────────────────────────────────────────────────────────────
+// Validates a card number using the Luhn (mod 10) checksum.
+// Returns true when the digits form a valid Luhn sequence.
+function luhnCheck(cardNumber) {
+  const digits = String(cardNumber).replace(/\D/g, "");
+  if (digits.length < 12) return false;
+
+  let sum = 0;
+  let shouldDouble = false;
+
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let digit = parseInt(digits[i], 10);
+
+    if (shouldDouble) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+
+    sum += digit;
+    shouldDouble = !shouldDouble;
+  }
+
+  return sum % 10 === 0;
+}
+
+// ─── Toast ─────────────────────────────────────────────────────────────────────
+function Toast({ message, visible }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        position: "fixed",
+        bottom: visible ? "32px" : "-80px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        backgroundColor: "#004d33",
+        color: "#fff",
+        padding: "16px 24px",
+        borderRadius: "14px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+        fontFamily: FONT_BODY,
+        fontSize: "15px",
+        fontWeight: 600,
+        opacity: visible ? 1 : 0,
+        transition: "bottom 0.35s ease, opacity 0.35s ease",
+        zIndex: 1000,
+        pointerEvents: "none",
+        whiteSpace: "nowrap",
+      }}
+    >
+      <FaCheckCircle size={18} color="#5fe0a8" />
+      {message}
+    </div>
+  );
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -20,8 +80,9 @@ function FormField({ label, children }) {
   );
 }
 
-function TextInput({ placeholder, type = "text", mono = false, value, onChange }) {
+function TextInput({ placeholder, type = "text", mono = false, value, onChange, onBlur, error = false }) {
   const [focused, setFocused] = useState(false);
+  const borderColor = error ? "#d92d20" : focused ? "#006241" : "transparent";
   return (
     <input
       type={type}
@@ -29,13 +90,13 @@ function TextInput({ placeholder, type = "text", mono = false, value, onChange }
       value={value}
       onChange={onChange}
       onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
+      onBlur={(e) => { setFocused(false); onBlur?.(e); }}
       style={{
         fontFamily: mono ? FONT_MONO : FONT_BODY,
         fontSize: "16px",
         color: "#004d33",
         backgroundColor: "#edebe9",
-        border: `2px solid ${focused ? "#006241" : "transparent"}`,
+        border: `2px solid ${borderColor}`,
         borderRadius: "14px",
         padding: "14px 18px",
         height: "52px",
@@ -113,7 +174,34 @@ export default function Checkout() {
     cardNumber: "", cardName: "", expiry: "", cvv: "",
   });
 
+  const [cardTouched, setCardTouched] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+
+  const cardIsValid = luhnCheck(form.cardNumber);
+  const showCardError = cardTouched && form.cardNumber.length > 0 && !cardIsValid;
+
   const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
+
+  const handleSubmit = () => {
+    setCardTouched(true);
+    if (!cardIsValid || isProcessing) return;
+
+    setIsProcessing(true);
+
+    // Mock payment processing delay.
+    setTimeout(() => {
+      setIsProcessing(false);
+      setToastVisible(true);
+    }, 1200);
+  };
+
+  // Once the success toast shows, redirect home after a short beat.
+  useEffect(() => {
+    if (!toastVisible) return;
+    const redirectTimer = setTimeout(() => navigate("/"), 2000);
+    return () => clearTimeout(redirectTimer);
+  }, [toastVisible, navigate]);
 
   const displayNumber = form.cardNumber
     ? form.cardNumber.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim()
@@ -223,11 +311,21 @@ export default function Checkout() {
               <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                 <FormField label="Número de tarjeta">
                   <TextInput placeholder="1234 5678 9012 3456" mono value={form.cardNumber}
+                    error={showCardError}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, "").slice(0, 16);
                       setForm((p) => ({ ...p, cardNumber: val }));
                     }}
+                    onBlur={() => setCardTouched(true)}
                   />
+                  {showCardError && (
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <FaExclamationCircle size={13} color="#d92d20" />
+                      <span style={{ fontFamily: FONT_BODY, fontSize: "13px", color: "#d92d20" }}>
+                        Número de tarjeta inválido. Verifícalo e intenta de nuevo.
+                      </span>
+                    </div>
+                  )}
                 </FormField>
                 <FormField label="Titular de la tarjeta">
                   <TextInput placeholder="NOMBRE COMO APARECE EN LA TARJETA" value={form.cardName} onChange={set("cardName")} />
@@ -253,19 +351,22 @@ export default function Checkout() {
 
             {/* Confirm button */}
             <button
+              onClick={handleSubmit}
+              disabled={isProcessing}
               style={{
                 width: "100%", backgroundColor: "#006241", color: "#fff", border: "none",
-                borderRadius: "16px", padding: "18px", cursor: "pointer",
+                borderRadius: "16px", padding: "18px", cursor: isProcessing ? "default" : "pointer",
                 fontFamily: FONT_HEADER, fontWeight: 700, fontSize: "18px",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
                 boxShadow: "0 10px 20px rgba(0,98,65,0.3)",
-                transition: "background 0.2s, box-shadow 0.2s",
+                opacity: isProcessing ? 0.75 : 1,
+                transition: "background 0.2s, box-shadow 0.2s, opacity 0.2s",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#004d33"; e.currentTarget.style.boxShadow = "0 14px 24px rgba(0,98,65,0.4)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#006241"; e.currentTarget.style.boxShadow = "0 10px 20px rgba(0,98,65,0.3)"; }}
+              onMouseEnter={(e) => { if (isProcessing) return; e.currentTarget.style.backgroundColor = "#004d33"; e.currentTarget.style.boxShadow = "0 14px 24px rgba(0,98,65,0.4)"; }}
+              onMouseLeave={(e) => { if (isProcessing) return; e.currentTarget.style.backgroundColor = "#006241"; e.currentTarget.style.boxShadow = "0 10px 20px rgba(0,98,65,0.3)"; }}
             >
               <FaLock size={16} />
-              Confirmar y Pagar {plan.price}/mes
+              {isProcessing ? "Procesando pago..." : `Confirmar y Pagar ${plan.price}/mes`}
             </button>
 
             <p style={{ fontFamily: FONT_BODY, fontSize: "13px", color: "rgba(43,81,72,0.6)", textAlign: "center", margin: 0 }}>
@@ -337,6 +438,8 @@ export default function Checkout() {
 
         </div>
       </div>
+
+      <Toast message={`¡Pago exitoso! Redirigiendo a inicio...`} visible={toastVisible} />
     </div>
   );
 }
