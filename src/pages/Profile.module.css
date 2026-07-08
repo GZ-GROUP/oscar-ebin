@@ -293,3 +293,355 @@
     color: #8fa08f;
     text-align: center;
 }
+
+/* =============================================
+    MODAL (base reutilizable)
+   ============================================= */
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 35, 25, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 1000;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.modalContent {
+    background: #f0f4ee;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 32px rgba(20, 35, 25, 0.25);
+    animation: slideUp 0.18s ease-out;
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid #dde8dd;
+}
+
+.modalTitle {
+    font-family: 'Cabin Condensed', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1a2e1a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modalCloseBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #5a6e5a;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    transition: background 0.15s, color 0.15s;
+}
+
+.modalCloseBtn:hover {
+    background: #dde8dd;
+    color: #1a2e1a;
+}
+
+.modalBody {
+    padding: 20px;
+    overflow-y: auto;
+    font-family: 'Roboto', sans-serif;
+}
+
+.modalFooter {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.modalPrimaryBtn {
+    background: #2d5a3c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s;
+}
+
+.modalPrimaryBtn:hover:not(:disabled) {
+    background: #24472f;
+}
+
+.modalPrimaryBtn:disabled {
+    background: #c5d9c8;
+    color: #7c8f7c;
+    cursor: not-allowed;
+}
+
+.modalEmptyText {
+    font-size: 0.9rem;
+    color: #5a6e5a;
+    line-height: 1.5;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================================
+    MODAL: Configuración
+   ============================================= */
+
+.settingsField {
+    margin-bottom: 16px;
+}
+
+.settingsLabel {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #5a6e5a;
+    margin-bottom: 6px;
+}
+
+.settingsInput {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid #c5d9c8;
+    border-radius: 8px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+    color: #1a2e1a;
+    outline: none;
+    background: #fff;
+}
+
+.settingsInput:focus {
+    border-color: #3d7a56;
+}
+
+.settingsStaticValue {
+    font-size: 0.9rem;
+    color: #1a2e1a;
+}
+
+.settingsToggleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.toggleSwitch {
+    width: 40px;
+    height: 22px;
+    border-radius: 999px;
+    background: #c5d9c8;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+    transition: background 0.18s;
+    flex-shrink: 0;
+}
+
+.toggleSwitchOn {
+    background: #2d5a3c;
+}
+
+.toggleKnob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.18s;
+}
+
+.toggleSwitchOn .toggleKnob {
+    transform: translateX(18px);
+}
+
+.savedNotice {
+    font-size: 0.82rem;
+    color: #3d7a56;
+    font-weight: 500;
+}
+
+/* =============================================
+    MODAL: Historial
+   ============================================= */
+
+.historyList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.historyItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.historyDate {
+    font-size: 0.72rem;
+    color: #8fa08f;
+}
+
+.historyDesc {
+    font-size: 0.88rem;
+    color: #1a2e1a;
+}
+
+/* =============================================
+    MODAL: Canjear puntos
+   ============================================= */
+
+.pointsAvailableText {
+    font-size: 0.92rem;
+    color: #1a2e1a;
+    margin-bottom: 16px;
+}
+
+.pointsAvailableText strong {
+    color: #2d5a3c;
+    font-size: 1.05rem;
+}
+
+.rewardsList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rewardItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.rewardIcon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.rewardInfo {
+    flex: 1;
+}
+
+.rewardName {
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: #1a2e1a;
+    margin-bottom: 2px;
+}
+
+.rewardCost {
+    font-size: 0.76rem;
+    color: #5a6e5a;
+}
+
+.rewardBtn {
+    background: #2d5a3c;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, opacity 0.15s;
+}
+
+.rewardBtn:hover:not(:disabled) {
+    background: #24472f;
+}
+
+.rewardBtn:disabled {
+    background: #c5d9c8;
+    color: #7c8f7c;
+    cursor: not-allowed;
+}
+
+/* =============================================
+    MODAL: Mis residuos
+   ============================================= */
+
+.wasteList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.wasteItem {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wasteItemHeader {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.wasteItemName {
+    font-weight: 500;
+    color: #1a2e1a;
+}
+
+.wasteItemCount {
+    color: #5a6e5a;
+}
+
+.wasteBarTrack {
+    width: 100%;
+    height: 8px;
+    background: #dde8dd;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.wasteBarFill {
+    height: 100%;
+    background: #3d7a56;
+    border-radius: 999px;
+    transition: width 0.3s ease-out;
+}
