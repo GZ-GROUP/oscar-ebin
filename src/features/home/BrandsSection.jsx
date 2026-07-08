@@ -1,21 +1,34 @@
 import React from 'react';
 import './BrandSecction.css';
 
+import teslaLogo from '../../assets/tesla.png';
+import amazonLogo from '../../assets/amazon.png';
+import nvidiaLogo from '../../assets/nvidia.png';
+import googleLogo from '../../assets/google.png';
+import microsoftLogo from '../../assets/microsoft.png';
+import metaLogo from '../../assets/meta.png';
+import minutosLogo from '../../assets/31minutos.png';
+import apertureLogo from '../../assets/aperture.png';
+import blackMesaLogo from '../../assets/black_mesa.svg';
+import valveLogo from '../../assets/valve.png';
+import umbrellaLogo from '../../assets/umbrella.png';
+import capsuleLogo from '../../assets/capsule.png';
+
 
 function BrandsSection() {
     const brands = [
-        { id: 1, name: "Brand 1", image: "src/assets/tesla.png" },
-        { id: 2, name: "Brand 2", image: "src/assets/amazon.png" },
-        { id: 3, name: "Brand 3", image: "src/assets/nvidia.png" },
-        { id: 4, name: "Brand 4", image: "src/assets/google.png" },
-        { id: 5, name: "Brand 5", image: "src/assets/microsoft.png" },
-        { id: 6, name: "Brand 6", image: "src/assets/meta.png" },
-        { id: 7, name: "Brand 7", image: "src/assets/31minutos.png" },
-        { id: 8, name: "Brand 8", image: "src/assets/aperture.png" },
-        { id: 9, name: "Brand 9", image: "src/assets/black_mesa.svg" },
-        { id: 10, name: "Brand 10", image: "src/assets/valve.png" },
-        { id: 11, name: "Brand 11", image: "src/assets/umbrella.png" },
-        { id: 12, name: "Brand 12", image: "src/assets/capsule.png" },
+        { id: 1, name: "Brand 1", image: teslaLogo },
+        { id: 2, name: "Brand 2", image: amazonLogo },
+        { id: 3, name: "Brand 3", image: nvidiaLogo },
+        { id: 4, name: "Brand 4", image: googleLogo },
+        { id: 5, name: "Brand 5", image: microsoftLogo },
+        { id: 6, name: "Brand 6", image: metaLogo },
+        { id: 7, name: "Brand 7", image: minutosLogo },
+        { id: 8, name: "Brand 8", image: apertureLogo },
+        { id: 9, name: "Brand 9", image: blackMesaLogo },
+        { id: 10, name: "Brand 10", image: valveLogo },
+        { id: 11, name: "Brand 11", image: umbrellaLogo },
+        { id: 12, name: "Brand 12", image: capsuleLogo },
     ];
 
     return (
