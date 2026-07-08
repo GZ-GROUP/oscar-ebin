@@ -1,10 +1,39 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import logoImg from "/src/assets/mainOscar.svg";
-
+import { getStoredUser, isAuthenticated, logout } from "../services/authService";
 
 export default function Navbar() {
+  const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+    navigate("/signin");
+  };
+
+  const isAuth = isAuthenticated();
+  const displayName = user?.name || user?.username || "Usuario";
+
   return (
     <nav
       style={{
@@ -16,6 +45,7 @@ export default function Navbar() {
         height: "83.5px",
         width: "100%",
         boxSizing: "border-box",
+        position: "relative",
       }}
     >
       {/* Logo + Brand */}
@@ -43,7 +73,7 @@ export default function Navbar() {
       </Link>
 
       {/* Nav Links + CTA */}
-      <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
         {["¿Cómo Funciona?", "Características", "Contáctanos"].map((link) => (
           <a
             key={link}
@@ -64,33 +94,117 @@ export default function Navbar() {
         ))}
 
         <Link
-          to="/signup"
+          to="/leaderboard"
           style={{
-            fontFamily: "'ABeezee', sans-serif",
+            fontFamily: "'ABeeZee', sans-serif",
             fontWeight: 500,
             fontSize: "18px",
-            color: "#1e3932",
-            background: "transparent",
-            border: "2px solid #1e3932",
-            borderRadius: "4px",
-            padding: "10px 24px",
-            cursor: "pointer",
-            whiteSpace: "nowrap",
-            transition: "background 0.2s, color 0.2s",
+            color: "rgba(0,0,0,0.87)",
             textDecoration: "none",
-            display: "inline-block",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.background = "#1e3932";
-            e.target.style.color = "#fff";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = "transparent";
-            e.target.style.color = "#1e3932";
           }}
         >
-          Registrate
+          Ranking
         </Link>
+
+        {isAuth ? (
+          <div ref={menuRef} style={{ position: "relative" }}>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              style={{
+                fontFamily: "'ABeeZee', sans-serif",
+                fontWeight: 600,
+                fontSize: "16px",
+                color: "#1e3932",
+                background: "transparent",
+                border: "2px solid #1e3932",
+                borderRadius: "4px",
+                padding: "10px 24px",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Hola {displayName}
+            </button>
+
+            {menuOpen && (
+              <div style={{
+                position: "absolute",
+                right: 0,
+                top: "100%",
+                marginTop: "10px",
+                background: "#ffffff",
+                border: "1px solid #c4c4c4",
+                borderRadius: "10px",
+                boxShadow: "0 12px 24px rgba(0,0,0,0.12)",
+                minWidth: "180px",
+                zIndex: 20,
+                overflow: "hidden",
+              }}>
+                <Link
+                  to="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    display: "block",
+                    padding: "12px 18px",
+                    color: "#1e3932",
+                    textDecoration: "none",
+                    fontFamily: "'ABeeZee', sans-serif",
+                    fontSize: "15px",
+                  }}
+                >
+                  Ver perfil
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  style={{
+                    width: "100%",
+                    padding: "12px 18px",
+                    border: "none",
+                    background: "transparent",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    fontFamily: "'ABeeZee', sans-serif",
+                    fontSize: "15px",
+                    color: "#d32f2f",
+                  }}
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link
+            to="/signup"
+            style={{
+              fontFamily: "'ABeeZee', sans-serif",
+              fontWeight: 500,
+              fontSize: "18px",
+              color: "#1e3932",
+              background: "transparent",
+              border: "2px solid #1e3932",
+              borderRadius: "4px",
+              padding: "10px 24px",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              transition: "background 0.2s, color 0.2s",
+              textDecoration: "none",
+              display: "inline-block",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = "#1e3932";
+              e.target.style.color = "#fff";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "transparent";
+              e.target.style.color = "#1e3932";
+            }}
+          >
+            Registrate
+          </Link>
+        )}
       </div>
     </nav>
   );

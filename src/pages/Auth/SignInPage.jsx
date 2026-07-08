@@ -28,15 +28,14 @@ export default function SignInPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSuccessMessage("");
+    setErrors({});
     
     if (validateInputs()) {
       setLoading(true);
       try {
         const result = await login(email, password);
-        const visitsText = result.visits != null ? ` - Visitas: ${result.visits}` : "";
-        setSuccessMessage(`${result.message || "¡Inicio de sesión exitoso!"}${visitsText}`);
-        // Aquí puedes guardar el token en localStorage si es necesario
-        // localStorage.setItem("token", result.token);
+        setSuccessMessage(result.message || "¡Inicio de sesión exitoso!");
+        
         // Redirigir a home después de 1 segundo
         setTimeout(() => {
           window.location.href = "/";
