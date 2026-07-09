@@ -3,6 +3,10 @@ import jsPDF from "jspdf";
 import { apiCall } from "../services/api";
 import styles from "./Profile.module.css";
 
+function formatPoints(value) {
+    return Number(value ?? 0).toFixed(2);
+}
+
 function getInitials(name) {
     if (!name) return "U";
     return name
@@ -152,15 +156,6 @@ const TYPE_LABELS = {
     Plastic: "Plástico",
 };
 
-// Recompensas disponibles para canjear.
-// NOTA: mock local — cuando exista un endpoint real (p.ej. GET /rewards),
-// basta con reemplazar este arreglo por el resultado de apiCall("/rewards").
-const REWARDS = [
-    { id: "r1", name: "Descuento 5% en tienda OSCAR", cost: 2, icon: "🏷️" },
-    { id: "r2", name: "Envío gratis en tu próximo pedido", cost: 3, icon: "🚚" },
-    { id: "r3", name: "Bono ecológico OSCAR", cost: 5, icon: "🌱" },
-    { id: "r4", name: "Entrada a evento OSCAR", cost: 8, icon: "🎟️" },
-];
 
 // ══════════════════════════════════════════════
 //  MODAL BASE (reutilizable)
@@ -262,27 +257,57 @@ function ConfiguracionModal({ user, onClose, onSaveName }) {
     );
 }
 
+// Traduce la categoría de un movimiento del historial a texto legible
+function formatHistoryDescription(entry) {
+    if (entry.reward_name) return `Canje: ${entry.reward_name}`;
+    if (entry.oscar_name) return `Sesión en ${entry.oscar_name}`;
+    if (entry.note) return entry.note;
+    return "Movimiento";
+}
+
+function formatHistoryDate(isoDate) {
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
+    if (Number.isNaN(date.getTime())) return isoDate;
+    return date.toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+}
+
 // ══════════════════════════════════════════════
 //  MODAL: Historial
 // ══════════════════════════════════════════════
 function HistorialModal({ onClose }) {
     const [history, setHistory] = useState([]);
     const [histLoading, setHistLoading] = useState(true);
-    const [histUnavailable, setHistUnavailable] = useState(false);
+    const [histError, setHistError] = useState("");
+    const [categoryFilter, setCategoryFilter] = useState(""); // "" | "session" | "claim"
+    const [typeFilter, setTypeFilter] = useState(""); // "" | "credit" | "debit"
+    const [page, setPage] = useState(1);
+    const limit = 10;
 
     useEffect(() => {
         let isActive = true;
 
         const fetchHistory = async () => {
+            setHistLoading(true);
+            setHistError("");
             try {
-                const result = await apiCall("/profile/history");
-                const data = result?.data || result;
-                const list = Array.isArray(data) ? data : data?.history || [];
+                const params = new URLSearchParams();
+                if (categoryFilter) params.set("category", categoryFilter);
+                if (typeFilter) params.set("type", typeFilter);
+                params.set("page", String(page));
+                params.set("limit", String(limit));
+
+                const result = await apiCall(`/history?${params.toString()}`, "GET");
+                const list = result?.data || [];
                 if (isActive) setHistory(list);
             } catch (fetchError) {
-                // El endpoint todavía puede no existir en el backend;
-                // degradamos con un mensaje amigable en vez de un error.
-                if (isActive) setHistUnavailable(true);
+                if (isActive) setHistError(fetchError.message || "No se pudo cargar el historial");
             } finally {
                 if (isActive) setHistLoading(false);
             }
@@ -292,78 +317,277 @@ function HistorialModal({ onClose }) {
         return () => {
             isActive = false;
         };
-    }, []);
+    }, [categoryFilter, typeFilter, page]);
+
+    const handleFilterChange = (setter) => (e) => {
+        setter(e.target.value);
+        setPage(1);
+    };
 
     return (
         <Modal title="Historial" icon={<HistoryIcon />} onClose={onClose}>
+            <div className={styles.historyFilters}>
+                <select
+                    className={styles.historySelect}
+                    value={categoryFilter}
+                    onChange={handleFilterChange(setCategoryFilter)}
+                >
+                    <option value="">Todas las categorías</option>
+                    <option value="session">Sesiones</option>
+                    <option value="claim">Canjes</option>
+                </select>
+                <select
+                    className={styles.historySelect}
+                    value={typeFilter}
+                    onChange={handleFilterChange(setTypeFilter)}
+                >
+                    <option value="">Todos los movimientos</option>
+                    <option value="credit">Créditos</option>
+                    <option value="debit">Débitos</option>
+                </select>
+            </div>
+
             {histLoading && <p className={styles.modalEmptyText}>Cargando historial...</p>}
 
-            {!histLoading && (histUnavailable || history.length === 0) && (
-                <p className={styles.modalEmptyText}>
-                    Aún no hay historial de sesiones disponible. Vuelve pronto para ver tu
-                    actividad reciente.
+            {!histLoading && histError && (
+                <p className={styles.modalEmptyText} style={{ color: "#c0392b" }}>
+                    {histError}
                 </p>
             )}
 
-            {!histLoading && !histUnavailable && history.length > 0 && (
-                <ul className={styles.historyList}>
-                    {history.map((entry, index) => (
-                        <li key={entry.id || index} className={styles.historyItem}>
-                            <span className={styles.historyDate}>
-                                {entry.date || entry.created_at || ""}
-                            </span>
-                            <span className={styles.historyDesc}>
-                                {entry.description || entry.title || "Sesión completada"}
-                            </span>
-                        </li>
-                    ))}
-                </ul>
+            {!histLoading && !histError && history.length === 0 && (
+                <p className={styles.modalEmptyText}>
+                    No hay movimientos que coincidan con estos filtros.
+                </p>
+            )}
+
+            {!histLoading && !histError && history.length > 0 && (
+                <>
+                    <ul className={styles.historyList}>
+                        {history.map((entry) => {
+                            const amount = Number(entry.amount) || 0;
+                            const isCredit = entry.type === "credit";
+                            return (
+                                <li key={entry.id} className={styles.historyItem}>
+                                    <div className={styles.historyItemMain}>
+                                        <span className={styles.historyDesc}>
+                                            {formatHistoryDescription(entry)}
+                                        </span>
+                                        <span
+                                            className={styles.historyAmount}
+                                            style={{ color: isCredit ? "#2d5a3c" : "#c0392b" }}
+                                        >
+                                            {isCredit ? "+" : "-"}
+                                            {Math.abs(amount)}
+                                        </span>
+                                    </div>
+                                    <span className={styles.historyDate}>
+                                        {formatHistoryDate(entry.created_at)}
+                                    </span>
+                                </li>
+                            );
+                        })}
+                    </ul>
+
+                    <div className={styles.historyPagination}>
+                        <button
+                            className={styles.historyPageBtn}
+                            disabled={page === 1}
+                            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                        >
+                            Anterior
+                        </button>
+                        <span className={styles.historyPageLabel}>Página {page}</span>
+                        <button
+                            className={styles.historyPageBtn}
+                            disabled={history.length < limit}
+                            onClick={() => setPage((prev) => prev + 1)}
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                </>
             )}
         </Modal>
     );
 }
 
+function formatClaimDate(isoDate) {
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
+    if (Number.isNaN(date.getTime())) return isoDate;
+    return date.toLocaleDateString("es-ES", { year: "numeric", month: "short", day: "numeric" });
+}
+
+const CLAIM_STATUS_LABELS = {
+    pending: "Pendiente",
+    redeemed: "Canjeado",
+    rejected: "Rechazado",
+    cancelled: "Cancelado",
+};
+
 // ══════════════════════════════════════════════
 //  MODAL: Canjear puntos
 // ══════════════════════════════════════════════
-function CanjearPuntosModal({ pointsAvailable, onClose }) {
-    const [redeemedIds, setRedeemedIds] = useState([]);
+function CanjearPuntosModal({ pointsAvailable, onClose, onRedeemSuccess }) {
+    const [rewards, setRewards] = useState([]);
+    const [claims, setClaims] = useState([]);
+    const [pointsBalance, setPointsBalance] = useState(pointsAvailable);
+    const [catalogLoading, setCatalogLoading] = useState(true);
+    const [catalogError, setCatalogError] = useState("");
+    const [redeemingId, setRedeemingId] = useState(null);
+    const [errorByReward, setErrorByReward] = useState({});
 
-    const handleRedeem = (reward) => {
-        if (reward.cost > pointsAvailable || redeemedIds.includes(reward.id)) return;
-        // NOTA: mock local — cuando exista el endpoint real, reemplazar por
-        // apiCall("/rewards/redeem", { method: "POST", body: { reward_id: reward.id } })
-        setRedeemedIds((prev) => [...prev, reward.id]);
+    useEffect(() => {
+        let isActive = true;
+
+        const fetchCatalog = async () => {
+            try {
+                const result = await apiCall("/rewards/me", "GET");
+                const data = result?.data || {};
+                if (!isActive) return;
+                setRewards(data.available_rewards || []);
+                setClaims(data.my_claims || []);
+                if (data.user?.points_balance !== undefined) {
+                    setPointsBalance(Number(data.user.points_balance) || 0);
+                }
+            } catch (fetchError) {
+                if (isActive) setCatalogError(fetchError.message || "No se pudo cargar el catálogo de recompensas");
+            } finally {
+                if (isActive) setCatalogLoading(false);
+            }
+        };
+
+        fetchCatalog();
+        return () => {
+            isActive = false;
+        };
+    }, []);
+
+    // Una recompensa ya tiene una solicitud pendiente si aparece en my_claims con status "pending"
+    const pendingClaimFor = (rewardId) =>
+        claims.find((claim) => claim.reward_id === rewardId && claim.status === "pending");
+
+    const handleRedeem = async (reward) => {
+        const price = Number(reward.price) || 0;
+        if (!reward.is_active || reward.stock <= 0 || price > pointsBalance || pendingClaimFor(reward.id)) {
+            return;
+        }
+
+        setRedeemingId(reward.id);
+        setErrorByReward((prev) => ({ ...prev, [reward.id]: "" }));
+
+        try {
+            const result = await apiCall("/redeem", "POST", { reward_id: reward.id });
+            const claim = result?.data;
+
+            setClaims((prev) => [claim, ...prev]);
+            setPointsBalance((prev) => prev - price);
+            setRewards((prev) =>
+                prev.map((r) => (r.id === reward.id ? { ...r, stock: Math.max(0, r.stock - 1) } : r))
+            );
+            onRedeemSuccess(price);
+        } catch (redeemError) {
+            setErrorByReward((prev) => ({
+                ...prev,
+                [reward.id]: redeemError.message || "No se pudo canjear la recompensa",
+            }));
+        } finally {
+            setRedeemingId(null);
+        }
     };
 
     return (
         <Modal title="Canjear puntos" icon={<GiftIcon />} onClose={onClose}>
             <p className={styles.pointsAvailableText}>
-                Puntos disponibles: <strong>{pointsAvailable}</strong>
+                Puntos disponibles: <strong>{formatPoints(pointsBalance)}</strong>
             </p>
 
-            <ul className={styles.rewardsList}>
-                {REWARDS.map((reward) => {
-                    const isRedeemed = redeemedIds.includes(reward.id);
-                    const canAfford = reward.cost <= pointsAvailable;
-                    return (
-                        <li key={reward.id} className={styles.rewardItem}>
-                            <span className={styles.rewardIcon}>{reward.icon}</span>
-                            <div className={styles.rewardInfo}>
-                                <p className={styles.rewardName}>{reward.name}</p>
-                                <p className={styles.rewardCost}>{reward.cost} puntos</p>
-                            </div>
-                            <button
-                                className={styles.rewardBtn}
-                                disabled={!canAfford || isRedeemed}
-                                onClick={() => handleRedeem(reward)}
-                            >
-                                {isRedeemed ? "Solicitado ✓" : "Canjear"}
-                            </button>
-                        </li>
-                    );
-                })}
-            </ul>
+            {catalogLoading && <p className={styles.modalEmptyText}>Cargando recompensas...</p>}
+
+            {!catalogLoading && catalogError && (
+                <p className={styles.modalEmptyText} style={{ color: "#c0392b" }}>
+                    {catalogError}
+                </p>
+            )}
+
+            {!catalogLoading && !catalogError && rewards.length === 0 && (
+                <p className={styles.modalEmptyText}>No hay recompensas disponibles por ahora.</p>
+            )}
+
+            {!catalogLoading && !catalogError && rewards.length > 0 && (
+                <ul className={styles.rewardsList}>
+                    {rewards.map((reward) => {
+                        const price = Number(reward.price) || 0;
+                        const pendingClaim = pendingClaimFor(reward.id);
+                        const isRedeeming = redeemingId === reward.id;
+                        const outOfStock = reward.stock <= 0;
+                        const inactive = !reward.is_active;
+                        const canAfford = price <= pointsBalance;
+                        const isDisabled =
+                            outOfStock || inactive || !canAfford || !!pendingClaim || isRedeeming;
+                        const rewardError = errorByReward[reward.id];
+
+                        let buttonLabel = "Canjear";
+                        if (isRedeeming) buttonLabel = "Enviando...";
+                        else if (pendingClaim) buttonLabel = "Solicitado ✓";
+                        else if (outOfStock) buttonLabel = "Sin stock";
+                        else if (inactive) buttonLabel = "No disponible";
+
+                        return (
+                            <li key={reward.id} className={styles.rewardItem}>
+                                {reward.image_url ? (
+                                    <img
+                                        src={reward.image_url}
+                                        alt={reward.name}
+                                        className={styles.rewardImage}
+                                    />
+                                ) : (
+                                    <span className={styles.rewardIcon}>🎁</span>
+                                )}
+                                <div className={styles.rewardInfo}>
+                                    <p className={styles.rewardName}>{reward.name}</p>
+                                    {reward.description && (
+                                        <p className={styles.rewardDescription}>{reward.description}</p>
+                                    )}
+                                    <p className={styles.rewardCost}>
+                                        {formatPoints(price)} puntos
+                                        {reward.company?.name ? ` · ${reward.company.name}` : ""}
+                                        {typeof reward.stock === "number" ? ` · Stock: ${reward.stock}` : ""}
+                                    </p>
+                                    {rewardError && <p className={styles.rewardError}>{rewardError}</p>}
+                                </div>
+                                <button
+                                    className={styles.rewardBtn}
+                                    disabled={isDisabled}
+                                    onClick={() => handleRedeem(reward)}
+                                >
+                                    {buttonLabel}
+                                </button>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
+
+            {claims.length > 0 && (
+                <div className={styles.claimsSection}>
+                    <h4 className={styles.claimsTitle}>Tus canjes recientes</h4>
+                    <ul className={styles.claimsList}>
+                        {claims.map((claim) => (
+                            <li key={claim.id} className={styles.claimItem}>
+                                <span className={styles.claimDate}>
+                                    {formatClaimDate(claim.created_at)}
+                                </span>
+                                <span className={styles.claimStatus}>
+                                    {CLAIM_STATUS_LABELS[claim.status] || claim.status}
+                                </span>
+                                {claim.code && <span className={styles.claimCode}>{claim.code}</span>}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </Modal>
     );
 }
@@ -430,14 +654,15 @@ function generateWasteReportPDF(user, activities, total) {
         // Filas
         doc.setFont("helvetica", "normal");
         activities.forEach((item, index) => {
-            const percentage = total > 0 ? Math.round((item.count / total) * 100) : 0;
+            const count = Number(item.count) || 0;
+            const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
             if (index % 2 === 0) {
                 doc.setFillColor(...rowAlt);
                 doc.rect(14, y, 182, 8, "F");
             }
             doc.setTextColor(...textDark);
             doc.text(TYPE_LABELS[item.name] || item.name, 18, y + 6);
-            doc.text(String(item.count), 120, y + 6);
+            doc.text(String(count), 120, y + 6);
             doc.text(`${percentage}%`, 160, y + 6);
             y += 8;
         });
@@ -467,7 +692,7 @@ function generateWasteReportPDF(user, activities, total) {
 //  MODAL: Mis residuos
 // ══════════════════════════════════════════════
 function MisResiduosModal({ user, activities, onClose }) {
-    const total = activities.reduce((sum, item) => sum + (item.count || 0), 0);
+    const total = activities.reduce((sum, item) => sum + (Number(item.count) || 0), 0);
 
     return (
         <Modal title="Mis residuos" icon={<TrashIcon />} onClose={onClose}>
@@ -476,7 +701,8 @@ function MisResiduosModal({ user, activities, onClose }) {
             ) : (
                 <ul className={styles.wasteList}>
                     {activities.map((item, index) => {
-                        const percentage = total > 0 ? Math.round((item.count / total) * 100) : 0;
+                        const count = Number(item.count) || 0;
+                        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
                         return (
                             <li key={item.name || index} className={styles.wasteItem}>
                                 <div className={styles.wasteItemHeader}>
@@ -484,7 +710,7 @@ function MisResiduosModal({ user, activities, onClose }) {
                                         {TYPE_LABELS[item.name] || item.name}
                                     </span>
                                     <span className={styles.wasteItemCount}>
-                                        {item.count} unidades ({percentage}%)
+                                        {count} unidades ({percentage}%)
                                     </span>
                                 </div>
                                 <div className={styles.wasteBarTrack}>
@@ -554,14 +780,31 @@ export default function Profile() {
         setEditValue(newName);
     };
 
+    // Actualiza el estado local de forma optimista tras un canje exitoso.
+    // El backend ya descontó el saldo real; esto solo refleja el cambio
+    // de inmediato en la UI sin esperar a un nuevo fetch del perfil.
+    const handleRedeemSuccess = (cost) => {
+        setUserData((prev) => {
+            if (!prev) return prev;
+            const currentPoints = Number(prev.points_available) || 0;
+            const currentRewardsClaimed = Number(prev.rewards_claimed) || 0;
+            return {
+                ...prev,
+                points_available: currentPoints - cost,
+                rewards_claimed: currentRewardsClaimed + 1,
+            };
+        });
+    };
+
     const closeModal = () => setActiveModal(null);
 
     const user = userData?.user;
     const activities = userData?.trash_items_by_type || [];
-    const pointsAvailable = userData?.points_available ?? 0;
-    const pointsTotal = userData?.points_earned_total ?? 0;
-    const sessionsCompleted = userData?.sessions_completed ?? 0;
-    const rewardsClaimed = userData?.rewards_claimed ?? 0;
+    // Los valores numéricos llegan como string desde la API (p.ej. "120.00")
+    const pointsAvailable = Number(userData?.points_available ?? 0);
+    const pointsTotal = Number(userData?.points_earned_total ?? 0);
+    const sessionsCompleted = Number(userData?.sessions_completed ?? 0);
+    const rewardsClaimed = Number(userData?.rewards_claimed ?? 0);
 
     if (loading) {
         return (
@@ -665,14 +908,14 @@ export default function Profile() {
                         </div>
                         <div className={styles.statCard}>
                             <p className={styles.statLabel}>Puntos disponibles</p>
-                            <p className={styles.statNumber}>{pointsAvailable}</p>
+                            <p className={styles.statNumber}>{formatPoints(pointsAvailable)}</p>
                         </div>
                     </div>
 
                     <div className={styles.statsRow} style={{ marginTop: "16px" }}>
                         <div className={styles.statCard}>
                             <p className={styles.statLabel}>Puntos ganados totales</p>
-                            <p className={styles.statNumber}>{pointsTotal}</p>
+                            <p className={styles.statNumber}>{formatPoints(pointsTotal)}</p>
                         </div>
                         <div className={styles.statCard}>
                             <p className={styles.statLabel}>Recompensas reclamadas</p>
@@ -730,7 +973,11 @@ export default function Profile() {
             )}
             {activeModal === "historial" && <HistorialModal onClose={closeModal} />}
             {activeModal === "canjear" && (
-                <CanjearPuntosModal pointsAvailable={pointsAvailable} onClose={closeModal} />
+                <CanjearPuntosModal
+                    pointsAvailable={pointsAvailable}
+                    onClose={closeModal}
+                    onRedeemSuccess={handleRedeemSuccess}
+                />
             )}
             {activeModal === "residuos" && (
                 <MisResiduosModal user={user} activities={activities} onClose={closeModal} />
