@@ -2,8 +2,8 @@ import React from 'react';
 
 const styles = {
   section: {
-    width: '1440px',
-    height: '656px',
+    width: '100%',
+    height: 'auto',
     maxWidth: '100%',
     backgroundColor: '#f0ede8',
     display: 'flex',
@@ -11,6 +11,7 @@ const styles = {
     fontFamily: "'Cabin Condensed', 'ABeeZee', serif",
     overflow: 'hidden',
     boxSizing: 'border-box',
+    padding: '40px 24px 48px',
   },
 
   // ── TOP 20% ──────────────────────────────────────────────────────────────
@@ -45,12 +46,12 @@ const styles = {
 
   // ── BOTTOM 75% ───────────────────────────────────────────────────────────
   cardsRow: {
-    height: '75%',           // 492px of 656px
     display: 'flex',
+    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '48px',
-    padding: '0 80px',
+    gap: '24px',
+    padding: '0 24px',
     boxSizing: 'border-box',
   },
 
@@ -58,8 +59,9 @@ const styles = {
   // 1280 - 2*48 = 1184 / 3 ≈ 394px → cap at height constraint (492px - vertical padding)
   card: {
     position: 'relative',
-    width: '340px',
-    height: '340px',
+    width: 'min(100%, 340px)',
+    aspectRatio: '1 / 1',
+    minHeight: '320px',
     borderRadius: '12px',
     overflow: 'hidden',
     flexShrink: 0,

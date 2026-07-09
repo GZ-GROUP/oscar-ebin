@@ -1,12 +1,18 @@
+import React from "react";
+import logoImg from "/src/assets/mainOscar.svg";
+
 function ContactUsSection() {
   return (
     <section
       style={{
         backgroundColor: "#d4e9e2",
-        minHeight: "380px",
+        minHeight: "auto",
         display: "flex",
-        alignItems: "center",
-        padding: "80px 90px",
+        flexWrap: "wrap",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        padding: "60px 24px",
+        gap: "32px",
         boxSizing: "border-box",
         position: "relative",
         overflow: "hidden",
@@ -30,7 +36,7 @@ function ContactUsSection() {
       />
 
       {/* LEFT — Text content */}
-      <div style={{ flex: "1 1 50%", position: "relative", zIndex: 1 }}>
+      <div style={{ flex: "1 1 320px", minWidth: "260px", maxWidth: "640px", position: "relative", zIndex: 1 }}>
         <p
           style={{
             fontSize: "11px",
@@ -124,6 +130,7 @@ function ContactUsSection() {
       <div
         style={{
           flex: "0 0 220px",
+          minWidth: "220px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -131,14 +138,10 @@ function ContactUsSection() {
           zIndex: 1,
         }}
       >
-        {/* Small floating dot accent — matches style of original image */}
-        <div
-          aria-hidden="true"          
-        />
         <img
-          src="src\assets\mainOscar.svg" 
+          src={logoImg}
           alt="GZ Group"
-          style={{ width: "200px", objectFit: "contain" }}
+          style={{ width: "100%", maxWidth: "220px", objectFit: "contain" }}
         />
       </div>
     </section>

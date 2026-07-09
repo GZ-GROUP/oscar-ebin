@@ -412,6 +412,35 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+@media (max-width: 880px) {
+    .page {
+        padding: 24px 16px;
+        align-items: center;
+    }
+
+    .card {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 24px;
+    }
+
+    .statsRow {
+        grid-template-columns: 1fr;
+    }
+
+    .contentRow {
+        grid-template-columns: 1fr;
+    }
+
+    .sideNav {
+        width: 100%;
+    }
+
+    .chartPlaceholder {
+        min-height: 220px;
+    }
+}
+
 /* =============================================
     MODAL: Configuración
    ============================================= */

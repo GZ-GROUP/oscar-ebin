@@ -1,26 +1,35 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
 
 import oscarImg from "/src/assets/grouch.png";
 
-
 export default function HeroSection() {
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 880px)");
+    const handleResize = (event) => setIsNarrow(event.matches);
+    handleResize(mediaQuery);
+    mediaQuery.addEventListener("change", handleResize);
+    return () => mediaQuery.removeEventListener("change", handleResize);
+  }, []);
+
   return (
     <section
       style={{
         backgroundColor: "#f2f0eb",
         width: "100%",
-        minHeight: "620px",
+        minHeight: isNarrow ? "auto" : "620px",
         boxSizing: "border-box",
-        padding: "100px 72px 60px",
+        padding: isNarrow ? "60px 24px 36px" : "100px 72px 60px",
         display: "flex",
-        alignItems: "center",
+        flexDirection: isNarrow ? "column" : "row",
+        alignItems: isNarrow ? "flex-start" : "center",
         justifyContent: "space-between",
-        gap: "48px",
+        gap: isNarrow ? "28px" : "48px",
         position: "relative",
-        overflow: "hidden",
+        overflow: "visible",
       }}
     >
       {/* Left: Text content */}
@@ -91,12 +100,14 @@ export default function HeroSection() {
       <div
         style={{
           flex: "1 1 434px",
-          maxWidth: "434px",
+          width: isNarrow ? "100%" : "434px",
+          maxWidth: "100%",
           backgroundColor: "#d4e9e2",
           border: "2px solid #2b5148",
           borderRadius: "8px",
           overflow: "hidden",
           boxSizing: "border-box",
+          marginTop: isNarrow ? "0" : undefined,
         }}
       >
         {/* Browser chrome bar */}
@@ -140,7 +151,8 @@ export default function HeroSection() {
             src={oscarImg}
             alt="Oscar the Grouch in a trash can"
             style={{
-              maxWidth: "146px",
+              width: "100%",
+              maxWidth: "220px",
               borderRadius: "31px",
               objectFit: "cover",
             }}
