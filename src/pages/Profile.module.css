@@ -627,15 +627,97 @@
     MODAL: Canjear puntos
    ============================================= */
 
-.pointsAvailableText {
-    font-size: 0.92rem;
-    color: #1a2e1a;
-    margin-bottom: 16px;
+.rewardHeroCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2d5a3c, #3d7a56);
+    color: #fff;
+    margin-bottom: 12px;
 }
 
-.pointsAvailableText strong {
+.rewardHeroLabel {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.82;
+    margin-bottom: 4px;
+}
+
+.rewardHeroPoints {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.rewardHeroStats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.88);
+    text-align: right;
+}
+
+.rewardNotice {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #edf8ef;
     color: #2d5a3c;
-    font-size: 1.05rem;
+    font-size: 0.82rem;
+    margin-bottom: 12px;
+}
+
+.rewardNoticeError {
+    background: #ffeaea;
+    color: #b42318;
+}
+
+.rewardTabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.rewardTab {
+    flex: 1;
+    border: 1px solid #dce8de;
+    background: #f6faf6;
+    color: #3d7a56;
+    border-radius: 999px;
+    padding: 8px 10px;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.rewardTabActive {
+    background: #2d5a3c;
+    color: #fff;
+    border-color: #2d5a3c;
+}
+
+.rewardTabCount {
+    border-radius: 999px;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.rewardEmptyState {
+    padding: 16px;
+    text-align: center;
+    color: #5a6e5a;
+    background: #f7fbf8;
+    border-radius: 10px;
+    font-size: 0.84rem;
 }
 
 .rewardsList {
@@ -647,11 +729,19 @@
 
 .rewardItem {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: space-between;
     gap: 12px;
     background: #fff;
     border-radius: 10px;
     padding: 10px 12px;
+}
+
+.rewardItemMain {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
 }
 
 .rewardImage {
@@ -678,15 +768,29 @@
     flex: 1;
 }
 
+.rewardHeaderRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
 .rewardName {
     font-size: 0.86rem;
     font-weight: 500;
     color: #1a2e1a;
-    margin-bottom: 2px;
 }
 
 .rewardCost {
     font-size: 0.76rem;
+    color: #3d7a56;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rewardMetaText {
+    font-size: 0.74rem;
     color: #5a6e5a;
 }
 
@@ -720,55 +824,30 @@
     cursor: not-allowed;
 }
 
-.claimsSection {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid #dde8dd;
-}
-
-.claimsTitle {
-    font-family: 'Cabin Condensed', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #1a2e1a;
-    margin-bottom: 10px;
-}
-
-.claimsList {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.claimItem {
-    display: flex;
+.rewardStatusBadge {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 8px 10px;
-    background: #fff;
-    border-radius: 7px;
-    font-size: 0.78rem;
-}
-
-.claimDate {
-    color: #8fa08f;
-    flex-shrink: 0;
-}
-
-.claimStatus {
-    color: #3d7a56;
-    font-weight: 500;
-}
-
-.claimCode {
-    font-family: monospace;
-    color: #5a6e5a;
-    background: #f0f4ee;
-    padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: 999px;
+    padding: 4px 8px;
     font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rewardStatusBadgeSuccess {
+    background: #edf8ef;
+    color: #2d5a3c;
+}
+
+.rewardStatusBadgeMuted {
+    background: #f3f5f3;
+    color: #5a6e5a;
+}
+
+.rewardHintText {
+    margin-top: 10px;
+    font-size: 0.76rem;
+    color: #7a8a7a;
 }
 
 /* =============================================

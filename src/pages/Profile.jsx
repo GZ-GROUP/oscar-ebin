@@ -156,6 +156,71 @@ const TYPE_LABELS = {
     Plastic: "Plástico",
 };
 
+function normalizeRewardSummary(raw) {
+    const reward = raw?.reward ?? raw ?? {};
+    const status = (raw?.status ?? raw?.claim_status ?? "").toLowerCase();
+
+    return {
+        id: reward?.id ?? raw?.id ?? raw?.reward_id ?? reward?.reward_id ?? 0,
+        name: reward?.name ?? raw?.name ?? raw?.reward_name ?? "Recompensa",
+        description: reward?.description ?? raw?.description ?? "",
+        price: Number(reward?.price ?? raw?.price ?? raw?.reward_price ?? 0),
+        image_url: reward?.image_url ?? raw?.image_url ?? reward?.imageUrl ?? raw?.imageUrl ?? "",
+        stock: Number(reward?.stock ?? raw?.stock ?? raw?.available_stock ?? 0),
+        is_active: reward?.is_active ?? raw?.is_active ?? true,
+        company: reward?.company ?? raw?.company ?? null,
+        valid_until: reward?.valid_until ?? raw?.valid_until ?? raw?.reward_valid_until ?? null,
+        status,
+        code: raw?.code ?? raw?.claim_code ?? "",
+        created_at: raw?.created_at ?? raw?.claim_created_at ?? null,
+        redeemed_at: raw?.redeemed_at ?? null,
+    };
+}
+
+function normalizeRewardsPayload(payload) {
+    const data = payload?.data ?? payload ?? {};
+    const available = (Array.isArray(data.available)
+        ? data.available
+        : Array.isArray(data.available_rewards)
+            ? data.available_rewards
+            : []
+    )
+        .map(normalizeRewardSummary)
+        .filter((item) => item.id);
+
+    const claims = (Array.isArray(data.my_claims)
+        ? data.my_claims
+        : Array.isArray(data.purchased)
+            ? data.purchased
+            : []
+    )
+        .map(normalizeRewardSummary)
+        .filter((item) => item.id);
+
+    const expired = (Array.isArray(data.expired) ? data.expired : [])
+        .map(normalizeRewardSummary)
+        .filter((item) => item.id);
+
+    const purchased = claims.filter((item) => ["pending", "redeemed"].includes(item.status));
+    const expiredClaims = [
+        ...expired,
+        ...claims.filter((item) => ["expired", "rejected", "cancelled"].includes(item.status)),
+    ];
+
+    return {
+        available,
+        purchased,
+        expired: expiredClaims,
+        user: data.user ?? payload?.user ?? null,
+    };
+}
+
+function formatRewardStatusLabel(status) {
+    const value = (status || "").toLowerCase();
+    if (value === "expired") return "Expirada";
+    return CLAIM_STATUS_LABELS[value] || status || "Canjeada";
+}
+
 
 // ══════════════════════════════════════════════
 //  MODAL BASE (reutilizable)
@@ -430,29 +495,57 @@ const CLAIM_STATUS_LABELS = {
 //  MODAL: Canjear puntos
 // ══════════════════════════════════════════════
 function CanjearPuntosModal({ pointsAvailable, onClose, onRedeemSuccess }) {
-    const [rewards, setRewards] = useState([]);
-    const [claims, setClaims] = useState([]);
+    const [catalog, setCatalog] = useState([]);
+    const [availableRewards, setAvailableRewards] = useState([]);
+    const [purchasedRewards, setPurchasedRewards] = useState([]);
+    const [expiredRewards, setExpiredRewards] = useState([]);
     const [pointsBalance, setPointsBalance] = useState(pointsAvailable);
     const [catalogLoading, setCatalogLoading] = useState(true);
     const [catalogError, setCatalogError] = useState("");
     const [redeemingId, setRedeemingId] = useState(null);
-    const [errorByReward, setErrorByReward] = useState({});
+    const [notice, setNotice] = useState(null);
+    const [activeTab, setActiveTab] = useState("available");
 
     useEffect(() => {
         let isActive = true;
 
         const fetchCatalog = async () => {
+            setCatalogLoading(true);
+            setCatalogError("");
+            setNotice(null);
+
             try {
-                const result = await apiCall("/rewards/me", "GET");
-                const data = result?.data || {};
+                const [catalogResult, rewardsResult] = await Promise.all([
+                    apiCall("/rewards", "GET").catch(() => null),
+                    apiCall("/rewards/me", "GET").catch(() => null),
+                ]);
+
                 if (!isActive) return;
-                setRewards(data.available_rewards || []);
-                setClaims(data.my_claims || []);
-                if (data.user?.points_balance !== undefined) {
-                    setPointsBalance(Number(data.user.points_balance) || 0);
+
+                const publicRewards = Array.isArray(catalogResult?.data)
+                    ? catalogResult.data
+                    : Array.isArray(catalogResult?.data?.rewards)
+                        ? catalogResult.data.rewards
+                        : [];
+
+                const normalizedCatalog = publicRewards
+                    .map(normalizeRewardSummary)
+                    .filter((item) => item.id);
+                const normalizedRewards = normalizeRewardsPayload(rewardsResult || {});
+
+                setCatalog(normalizedCatalog);
+                setAvailableRewards(normalizedRewards.available.length > 0 ? normalizedRewards.available : normalizedCatalog);
+                setPurchasedRewards(normalizedRewards.purchased);
+                setExpiredRewards(normalizedRewards.expired);
+                if (normalizedRewards.user?.points_balance !== undefined) {
+                    setPointsBalance(Number(normalizedRewards.user.points_balance) || 0);
+                } else {
+                    setPointsBalance(pointsAvailable);
                 }
             } catch (fetchError) {
-                if (isActive) setCatalogError(fetchError.message || "No se pudo cargar el catálogo de recompensas");
+                if (isActive) {
+                    setCatalogError(fetchError.message || "No se pudo cargar el catálogo de recompensas");
+                }
             } finally {
                 if (isActive) setCatalogLoading(false);
             }
@@ -462,80 +555,74 @@ function CanjearPuntosModal({ pointsAvailable, onClose, onRedeemSuccess }) {
         return () => {
             isActive = false;
         };
-    }, []);
+    }, [pointsAvailable]);
 
-    // Una recompensa ya tiene una solicitud pendiente si aparece en my_claims con status "pending"
-    const pendingClaimFor = (rewardId) =>
-        claims.find((claim) => claim.reward_id === rewardId && claim.status === "pending");
+    const pendingClaimIds = new Set(
+        purchasedRewards.filter((claim) => claim.status === "pending").map((claim) => claim.id)
+    );
 
     const handleRedeem = async (reward) => {
         const price = Number(reward.price) || 0;
-        if (!reward.is_active || reward.stock <= 0 || price > pointsBalance || pendingClaimFor(reward.id)) {
+        if (!reward.is_active || reward.stock <= 0 || price > pointsBalance || pendingClaimIds.has(reward.id)) {
             return;
         }
 
         setRedeemingId(reward.id);
-        setErrorByReward((prev) => ({ ...prev, [reward.id]: "" }));
+        setNotice(null);
 
         try {
             const result = await apiCall("/redeem", "POST", { reward_id: reward.id });
-            const claim = result?.data;
+            const claim = result?.data || result;
+            const normalizedClaim = normalizeRewardSummary(claim);
 
-            setClaims((prev) => [claim, ...prev]);
+            setPurchasedRewards((prev) => [normalizedClaim, ...prev]);
+            setAvailableRewards((prev) => prev.filter((item) => item.id !== reward.id));
             setPointsBalance((prev) => prev - price);
-            setRewards((prev) =>
-                prev.map((r) => (r.id === reward.id ? { ...r, stock: Math.max(0, r.stock - 1) } : r))
-            );
+            setNotice({ type: "success", message: `¡Canjeaste "${reward.name}"!` });
             onRedeemSuccess(price);
         } catch (redeemError) {
-            setErrorByReward((prev) => ({
-                ...prev,
-                [reward.id]: redeemError.message || "No se pudo canjear la recompensa",
-            }));
+            setNotice({
+                type: "error",
+                message: redeemError.message || "No se pudo canjear la recompensa",
+            });
         } finally {
             setRedeemingId(null);
         }
     };
 
-    return (
-        <Modal title="Canjear puntos" icon={<GiftIcon />} onClose={onClose}>
-            <p className={styles.pointsAvailableText}>
-                Puntos disponibles: <strong>{formatPoints(pointsBalance)}</strong>
-            </p>
+    const tabs = [
+        { key: "available", label: "Disponibles", count: availableRewards.length },
+        { key: "purchased", label: "Canjeadas", count: purchasedRewards.length },
+        { key: "expired", label: "Expiradas", count: expiredRewards.length },
+    ];
 
-            {catalogLoading && <p className={styles.modalEmptyText}>Cargando recompensas...</p>}
+    const renderRewardList = (items, type) => {
+        if (!items.length) {
+            return <p className={styles.rewardEmptyState}>No tienes recompensas aquí todavía.</p>;
+        }
 
-            {!catalogLoading && catalogError && (
-                <p className={styles.modalEmptyText} style={{ color: "#c0392b" }}>
-                    {catalogError}
-                </p>
-            )}
+        return (
+            <ul className={styles.rewardsList}>
+                {items.map((reward) => {
+                    const price = Number(reward.price) || 0;
+                    const isRedeeming = redeemingId === reward.id;
+                    const outOfStock = reward.stock <= 0;
+                    const inactive = !reward.is_active;
+                    const canAfford = price <= pointsBalance;
+                    const pendingClaim = pendingClaimIds.has(reward.id);
+                    const isDisabled =
+                        outOfStock || inactive || !canAfford || pendingClaim || isRedeeming;
 
-            {!catalogLoading && !catalogError && rewards.length === 0 && (
-                <p className={styles.modalEmptyText}>No hay recompensas disponibles por ahora.</p>
-            )}
+                    let buttonLabel = type === "available" ? "Canjear" : "Ver estado";
+                    if (isRedeeming) buttonLabel = "Enviando...";
+                    else if (type === "available" && pendingClaim) buttonLabel = "Solicitado ✓";
+                    else if (type === "available" && outOfStock) buttonLabel = "Sin stock";
+                    else if (type === "available" && inactive) buttonLabel = "No disponible";
+                    else if (type === "available" && !canAfford) buttonLabel = "Puntos insuficientes";
 
-            {!catalogLoading && !catalogError && rewards.length > 0 && (
-                <ul className={styles.rewardsList}>
-                    {rewards.map((reward) => {
-                        const price = Number(reward.price) || 0;
-                        const pendingClaim = pendingClaimFor(reward.id);
-                        const isRedeeming = redeemingId === reward.id;
-                        const outOfStock = reward.stock <= 0;
-                        const inactive = !reward.is_active;
-                        const canAfford = price <= pointsBalance;
-                        const isDisabled =
-                            outOfStock || inactive || !canAfford || !!pendingClaim || isRedeeming;
-                        const rewardError = errorByReward[reward.id];
-
-                        let buttonLabel = "Canjear";
-                        if (isRedeeming) buttonLabel = "Enviando...";
-                        else if (pendingClaim) buttonLabel = "Solicitado ✓";
-                        else if (outOfStock) buttonLabel = "Sin stock";
-                        else if (inactive) buttonLabel = "No disponible";
-
-                        return (
-                            <li key={reward.id} className={styles.rewardItem}>
+                    return (
+                        <li key={reward.id} className={styles.rewardItem}>
+                            <div className={styles.rewardItemMain}>
                                 {reward.image_url ? (
                                     <img
                                         src={reward.image_url}
@@ -546,17 +633,34 @@ function CanjearPuntosModal({ pointsAvailable, onClose, onRedeemSuccess }) {
                                     <span className={styles.rewardIcon}>🎁</span>
                                 )}
                                 <div className={styles.rewardInfo}>
-                                    <p className={styles.rewardName}>{reward.name}</p>
+                                    <div className={styles.rewardHeaderRow}>
+                                        <p className={styles.rewardName}>{reward.name}</p>
+                                        {type !== "available" ? (
+                                            <span className={`${styles.rewardStatusBadge} ${styles.rewardStatusBadgeMuted}`}>
+                                                {formatRewardStatusLabel(reward.status)}
+                                            </span>
+                                        ) : (
+                                            <span className={styles.rewardCost}>{formatPoints(price)} pts</span>
+                                        )}
+                                    </div>
                                     {reward.description && (
                                         <p className={styles.rewardDescription}>{reward.description}</p>
                                     )}
-                                    <p className={styles.rewardCost}>
-                                        {formatPoints(price)} puntos
-                                        {reward.company?.name ? ` · ${reward.company.name}` : ""}
-                                        {typeof reward.stock === "number" ? ` · Stock: ${reward.stock}` : ""}
+                                    <p className={styles.rewardMetaText}>
+                                        {reward.company?.name ? `${reward.company.name}` : "Recompensa Oscar"}
+                                        {typeof reward.stock === "number" && reward.stock >= 0 && type === "available"
+                                            ? ` • Stock: ${reward.stock}`
+                                            : ""}
+                                        {type !== "available" && reward.created_at
+                                            ? ` • ${formatClaimDate(reward.created_at)}`
+                                            : ""}
+                                        {type !== "available" && reward.code
+                                            ? ` • Código: ${reward.code}`
+                                            : ""}
                                     </p>
-                                    {rewardError && <p className={styles.rewardError}>{rewardError}</p>}
                                 </div>
+                            </div>
+                            {type === "available" ? (
                                 <button
                                     className={styles.rewardBtn}
                                     disabled={isDisabled}
@@ -564,29 +668,70 @@ function CanjearPuntosModal({ pointsAvailable, onClose, onRedeemSuccess }) {
                                 >
                                     {buttonLabel}
                                 </button>
-                            </li>
-                        );
-                    })}
-                </ul>
+                            ) : (
+                                <span className={`${styles.rewardStatusBadge} ${type === "expired" ? styles.rewardStatusBadgeMuted : styles.rewardStatusBadgeSuccess}`}>
+                                    {formatRewardStatusLabel(reward.status)}
+                                </span>
+                            )}
+                        </li>
+                    );
+                })}
+            </ul>
+        );
+    };
+
+    return (
+        <Modal title="Canjear puntos" icon={<GiftIcon />} onClose={onClose}>
+            <div className={styles.rewardHeroCard}>
+                <div>
+                    <p className={styles.rewardHeroLabel}>Tus puntos Oscar</p>
+                    <p className={styles.rewardHeroPoints}>{formatPoints(pointsBalance)} pts</p>
+                </div>
+                <div className={styles.rewardHeroStats}>
+                    <span>{availableRewards.length} disponibles</span>
+                    <span>{purchasedRewards.length + expiredRewards.length} gestionadas</span>
+                </div>
+            </div>
+
+            {notice && (
+                <div className={`${styles.rewardNotice} ${notice.type === "error" ? styles.rewardNoticeError : ""}`}>
+                    {notice.message}
+                </div>
             )}
 
-            {claims.length > 0 && (
-                <div className={styles.claimsSection}>
-                    <h4 className={styles.claimsTitle}>Tus canjes recientes</h4>
-                    <ul className={styles.claimsList}>
-                        {claims.map((claim) => (
-                            <li key={claim.id} className={styles.claimItem}>
-                                <span className={styles.claimDate}>
-                                    {formatClaimDate(claim.created_at)}
-                                </span>
-                                <span className={styles.claimStatus}>
-                                    {CLAIM_STATUS_LABELS[claim.status] || claim.status}
-                                </span>
-                                {claim.code && <span className={styles.claimCode}>{claim.code}</span>}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+            <div className={styles.rewardTabs}>
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.key}
+                        className={`${styles.rewardTab} ${activeTab === tab.key ? styles.rewardTabActive : ""}`}
+                        onClick={() => setActiveTab(tab.key)}
+                    >
+                        <span>{tab.label}</span>
+                        <span className={styles.rewardTabCount}>{tab.count}</span>
+                    </button>
+                ))}
+            </div>
+
+            {catalogLoading && <p className={styles.modalEmptyText}>Cargando recompensas...</p>}
+
+            {!catalogLoading && catalogError && (
+                <p className={styles.modalEmptyText} style={{ color: "#c0392b" }}>
+                    {catalogError}
+                </p>
+            )}
+
+            {!catalogLoading && !catalogError && (
+                <>
+                    {activeTab === "available" && renderRewardList(availableRewards, "available")}
+                    {activeTab === "purchased" && renderRewardList(purchasedRewards, "purchased")}
+                    {activeTab === "expired" && renderRewardList(expiredRewards, "expired")}
+                </>
+            )}
+
+            {!catalogLoading && !catalogError && catalog.length > 0 && (
+                <p className={styles.rewardHintText}>
+                    Las recompensas se actualizan automáticamente después de cada canje.
+                </p>
             )}
         </Modal>
     );
