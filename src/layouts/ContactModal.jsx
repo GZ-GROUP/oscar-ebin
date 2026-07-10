@@ -184,8 +184,11 @@ export default function ContactModal({ isOpen, onClose }) {
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim())    e.name    = "Requerido";
+    if (!form.name.trim()) e.name = "Requerido";
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = "Email inválido";
+    if (form.phone.trim() && !/^\+?\d{7,15}$/.test(form.phone.replace(/\s+/g, ""))) {
+      e.phone = "Teléfono inválido";
+    }
     if (!form.message.trim()) e.message = "Requerido";
     return e;
   };
@@ -366,8 +369,8 @@ export default function ContactModal({ isOpen, onClose }) {
                   </Field>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <Field label="Teléfono" icon={<IconPhone />}>
-                    <Input value={form.phone} onChange={set("phone")} placeholder="+507 600-0000" type="tel" />
+                  <Field label="Teléfono" icon={<IconPhone />} error={errors.phone}>
+                    <Input value={form.phone} onChange={set("phone")} placeholder="+507 600-0000" type="tel" hasError={!!errors.phone} />
                   </Field>
                 </div>
               </div>
