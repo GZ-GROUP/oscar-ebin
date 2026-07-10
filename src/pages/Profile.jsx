@@ -536,6 +536,69 @@ function formatClaimDate(isoDate) {
     return date.toLocaleDateString("es-ES", { year: "numeric", month: "short", day: "numeric" });
 }
 
+function WastePieChart({ activities }) {
+    const total = activities.reduce((sum, item) => sum + (Number(item.count) || 0), 0);
+    const chartData = activities
+        .map((item, index) => ({
+            ...item,
+            count: Number(item.count) || 0,
+            percentage: total > 0 ? Math.round(((Number(item.count) || 0) / total) * 100) : 0,
+            key: item.name || index,
+        }))
+        .filter((item) => item.count > 0);
+
+    if (!chartData.length) {
+        return <div className={styles.chartEmptyState}>No hay datos de residuos para mostrar.</div>;
+    }
+
+    const colors = ["#3d7a56", "#5abf8a", "#8bc34a", "#f4b400", "#f26d5b"];
+    const radius = 44;
+    const circumference = 2 * Math.PI * radius;
+    let offset = 0;
+
+    return (
+        <div className={styles.chartContent}>
+            <svg viewBox="0 0 120 120" className={styles.pieChart} role="img" aria-label="Distribución de residuos por tipo">
+                <circle cx="60" cy="60" r={radius} fill="none" stroke="#e6efe7" strokeWidth="18" />
+                {chartData.map((item, index) => {
+                    const segmentLength = (item.percentage / 100) * circumference;
+                    const dasharray = `${segmentLength} ${circumference - segmentLength}`;
+                    const dashoffset = -offset;
+                    offset += segmentLength;
+
+                    return (
+                        <circle
+                            key={item.key}
+                            cx="60"
+                            cy="60"
+                            r={radius}
+                            fill="none"
+                            stroke={colors[index % colors.length]}
+                            strokeWidth="18"
+                            strokeLinecap="round"
+                            strokeDasharray={dasharray}
+                            strokeDashoffset={dashoffset}
+                            transform="rotate(-90 60 60)"
+                        />
+                    );
+                })}
+            </svg>
+
+            <div className={styles.legendList}>
+                {chartData.map((item, index) => (
+                    <div key={item.key} className={styles.legendItem}>
+                        <span className={styles.legendDot} style={{ backgroundColor: colors[index % colors.length] }} />
+                        <div className={styles.legendText}>
+                            <span>{TYPE_LABELS[item.name] || item.name}</span>
+                            <strong>{item.percentage}%</strong>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 const CLAIM_STATUS_LABELS = {
     pending: "Pendiente",
     redeemed: "Canjeado",
