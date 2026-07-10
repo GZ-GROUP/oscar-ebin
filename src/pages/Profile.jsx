@@ -1153,9 +1153,9 @@ export default function Profile() {
 
                         <div className={styles.chartPlaceholder}>
                             <div className={styles.chartInner}>
-                                <span className={styles.chartIcon}>📊</span>
                                 <p className={styles.chartTitle}>Resumen mensual</p>
-                                <p className={styles.chartSub}>Datos reales cargados desde la API</p>
+                                <p className={styles.chartSub}>Porcentaje de residuos por tipo</p>
+                                <WastePieChart activities={activities} />
                             </div>
                         </div>
 

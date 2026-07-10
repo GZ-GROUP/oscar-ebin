@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { signUp } from "../../services/authService";
 
+const sanitizeName = (value) => value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, "");
+
 export default function SignUpPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -211,7 +213,7 @@ export default function SignUpPage() {
               <input
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setName(sanitizeName(e.target.value))}
                 style={inputStyle}
                 placeholder="Tu nombre completo"
               />

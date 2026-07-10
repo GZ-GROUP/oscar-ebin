@@ -174,7 +174,13 @@ export default function ContactModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const sanitizeName = (value) => value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, "");
+
+  const set = (key) => (e) => {
+    const rawValue = e.target.value;
+    const value = key === "name" ? sanitizeName(rawValue) : rawValue;
+    setForm((f) => ({ ...f, [key]: value }));
+  };
 
   const validate = () => {
     const e = {};
