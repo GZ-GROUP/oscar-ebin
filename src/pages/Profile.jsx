@@ -353,7 +353,9 @@ function HistorialModal({ onClose }) {
     const [categoryFilter, setCategoryFilter] = useState(""); // "" | "session" | "claim"
     const [typeFilter, setTypeFilter] = useState(""); // "" | "credit" | "debit"
     const [page, setPage] = useState(1);
-    const limit = 10;
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const limit = 15;
 
     useEffect(() => {
         let isActive = true;
@@ -365,12 +367,17 @@ function HistorialModal({ onClose }) {
                 const params = new URLSearchParams();
                 if (categoryFilter) params.set("category", categoryFilter);
                 if (typeFilter) params.set("type", typeFilter);
-                params.set("page", String(page));
+                params.set("page", "1");
                 params.set("limit", String(limit));
 
                 const result = await apiCall(`/history?${params.toString()}`, "GET");
-                const list = result?.data || [];
-                if (isActive) setHistory(list);
+                const list = Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
+
+                if (isActive) {
+                    setHistory(list);
+                    setPage(1);
+                    setHasMore(list.length === limit);
+                }
             } catch (fetchError) {
                 if (isActive) setHistError(fetchError.message || "No se pudo cargar el historial");
             } finally {
@@ -382,34 +389,70 @@ function HistorialModal({ onClose }) {
         return () => {
             isActive = false;
         };
-    }, [categoryFilter, typeFilter, page]);
+    }, [categoryFilter, typeFilter]);
 
-    const handleFilterChange = (setter) => (e) => {
-        setter(e.target.value);
-        setPage(1);
+    const loadMore = async () => {
+        if (loadingMore || !hasMore) return;
+
+        const nextPage = page + 1;
+        setLoadingMore(true);
+
+        try {
+            const params = new URLSearchParams();
+            if (categoryFilter) params.set("category", categoryFilter);
+            if (typeFilter) params.set("type", typeFilter);
+            params.set("page", String(nextPage));
+            params.set("limit", String(limit));
+
+            const result = await apiCall(`/history?${params.toString()}`, "GET");
+            const list = Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
+            setHistory((prev) => [...prev, ...list]);
+            setPage(nextPage);
+            setHasMore(list.length === limit);
+        } catch (fetchError) {
+            setHistError(fetchError.message || "No se pudo cargar más historial");
+        } finally {
+            setLoadingMore(false);
+        }
     };
+
+    const filterChips = [
+        { key: "", label: "Todos" },
+        { key: "session", label: "Sesiones" },
+        { key: "claim", label: "Canjes" },
+    ];
+
+    const typeChips = [
+        { key: "", label: "Todo tipo" },
+        { key: "credit", label: "Créditos" },
+        { key: "debit", label: "Débitos" },
+    ];
 
     return (
         <Modal title="Historial" icon={<HistoryIcon />} onClose={onClose}>
-            <div className={styles.historyFilters}>
-                <select
-                    className={styles.historySelect}
-                    value={categoryFilter}
-                    onChange={handleFilterChange(setCategoryFilter)}
-                >
-                    <option value="">Todas las categorías</option>
-                    <option value="session">Sesiones</option>
-                    <option value="claim">Canjes</option>
-                </select>
-                <select
-                    className={styles.historySelect}
-                    value={typeFilter}
-                    onChange={handleFilterChange(setTypeFilter)}
-                >
-                    <option value="">Todos los movimientos</option>
-                    <option value="credit">Créditos</option>
-                    <option value="debit">Débitos</option>
-                </select>
+            <div className={styles.historyFilterSection}>
+                <div className={styles.historyFilterRow}>
+                    {filterChips.map((chip) => (
+                        <button
+                            key={chip.key}
+                            className={`${styles.historyFilterChip} ${categoryFilter === chip.key ? styles.historyFilterChipActive : ""}`}
+                            onClick={() => setCategoryFilter(chip.key)}
+                        >
+                            {chip.label}
+                        </button>
+                    ))}
+                </div>
+                <div className={styles.historyFilterRow}>
+                    {typeChips.map((chip) => (
+                        <button
+                            key={chip.key}
+                            className={`${styles.historyFilterChip} ${styles.historyFilterChipSecondary} ${typeFilter === chip.key ? styles.historyFilterChipActiveSecondary : ""}`}
+                            onClick={() => setTypeFilter(chip.key)}
+                        >
+                            {chip.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {histLoading && <p className={styles.modalEmptyText}>Cargando historial...</p>}
@@ -421,9 +464,13 @@ function HistorialModal({ onClose }) {
             )}
 
             {!histLoading && !histError && history.length === 0 && (
-                <p className={styles.modalEmptyText}>
-                    No hay movimientos que coincidan con estos filtros.
-                </p>
+                <div className={styles.historyEmptyState}>
+                    <div className={styles.historyEmptyIcon}>🧾</div>
+                    <p className={styles.historyEmptyTitle}>Aún no tienes movimientos</p>
+                    <p className={styles.historyEmptyText}>
+                        Cuando completes sesiones o canjees recompensas, verás aquí tu historial.
+                    </p>
+                </div>
             )}
 
             {!histLoading && !histError && history.length > 0 && (
@@ -432,45 +479,50 @@ function HistorialModal({ onClose }) {
                         {history.map((entry) => {
                             const amount = Number(entry.amount) || 0;
                             const isCredit = entry.type === "credit";
+                            const subtitle = entry.session_id != null
+                                ? (entry.oscar_name || "Sesión")
+                                : (entry.reward_name || entry.note || "Recompensa canjeada");
+                            const title = entry.note || subtitle;
+
                             return (
                                 <li key={entry.id} className={styles.historyItem}>
+                                    <div className={`${styles.historyIconWrap} ${isCredit ? styles.historyIconCredit : styles.historyIconDebit}`}>
+                                        {isCredit ? "+" : "−"}
+                                    </div>
                                     <div className={styles.historyItemMain}>
-                                        <span className={styles.historyDesc}>
-                                            {formatHistoryDescription(entry)}
-                                        </span>
-                                        <span
-                                            className={styles.historyAmount}
-                                            style={{ color: isCredit ? "#2d5a3c" : "#c0392b" }}
-                                        >
-                                            {isCredit ? "+" : "-"}
-                                            {Math.abs(amount)}
+                                        <div className={styles.historyItemHeader}>
+                                            <span className={styles.historyDesc}>{title}</span>
+                                            <span className={`${styles.historyAmount} ${isCredit ? styles.historyAmountCredit : styles.historyAmountDebit}`}>
+                                                {isCredit ? "+" : "-"}
+                                                {Math.abs(amount)}
+                                            </span>
+                                        </div>
+                                        <div className={styles.historyMetaRow}>
+                                            <span className={styles.historyMetaBadge}>
+                                                {entry.session_id != null ? "Sesión" : "Canje"}
+                                            </span>
+                                            <span className={styles.historyMetaText}>{subtitle}</span>
+                                        </div>
+                                        <span className={styles.historyDate}>
+                                            {formatHistoryDate(entry.created_at)}
                                         </span>
                                     </div>
-                                    <span className={styles.historyDate}>
-                                        {formatHistoryDate(entry.created_at)}
-                                    </span>
                                 </li>
                             );
                         })}
                     </ul>
 
-                    <div className={styles.historyPagination}>
-                        <button
-                            className={styles.historyPageBtn}
-                            disabled={page === 1}
-                            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                        >
-                            Anterior
-                        </button>
-                        <span className={styles.historyPageLabel}>Página {page}</span>
-                        <button
-                            className={styles.historyPageBtn}
-                            disabled={history.length < limit}
-                            onClick={() => setPage((prev) => prev + 1)}
-                        >
-                            Siguiente
-                        </button>
-                    </div>
+                    {hasMore && (
+                        <div className={styles.historyPagination}>
+                            <button
+                                className={styles.historyPageBtn}
+                                disabled={loadingMore}
+                                onClick={loadMore}
+                            >
+                                {loadingMore ? "Cargando..." : "Cargar más"}
+                            </button>
+                        </div>
+                    )}
                 </>
             )}
         </Modal>

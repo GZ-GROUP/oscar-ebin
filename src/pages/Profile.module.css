@@ -527,26 +527,70 @@
     MODAL: Historial
    ============================================= */
 
-.historyFilters {
+.historyFilterSection {
     display: flex;
-    gap: 10px;
-    margin-bottom: 14px;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
-.historySelect {
-    flex: 1;
-    padding: 8px 10px;
-    border: 1.5px solid #c5d9c8;
-    border-radius: 8px;
-    font-family: 'Roboto', sans-serif;
-    font-size: 0.82rem;
-    color: #1a2e1a;
-    background: #fff;
-    outline: none;
+.historyFilterRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-.historySelect:focus {
+.historyFilterChip {
+    border: 1px solid #dce8de;
+    background: #f6faf6;
+    color: #3d7a56;
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.historyFilterChipActive {
+    background: #2d5a3c;
+    border-color: #2d5a3c;
+    color: #fff;
+}
+
+.historyFilterChipSecondary {
+    background: #f0f6f2;
+    color: #5a6e5a;
+}
+
+.historyFilterChipActiveSecondary {
+    background: #3d7a56;
     border-color: #3d7a56;
+    color: #fff;
+}
+
+.historyEmptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    padding: 24px 12px;
+    background: #f7fbf8;
+    border-radius: 12px;
+}
+
+.historyEmptyIcon {
+    font-size: 1.4rem;
+}
+
+.historyEmptyTitle {
+    color: #1a2e1a;
+    font-weight: 600;
+}
+
+.historyEmptyText {
+    color: #5a6e5a;
+    font-size: 0.84rem;
 }
 
 .historyList {
@@ -558,24 +602,59 @@
 
 .historyItem {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
+    align-items: flex-start;
+    gap: 10px;
     padding: 10px 12px;
     background: #fff;
-    border-radius: 8px;
+    border-radius: 12px;
+    border: 1px solid #e4ece4;
+}
+
+.historyIconWrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.historyIconCredit {
+    background: #eaf7ee;
+    color: #2d5a3c;
+}
+
+.historyIconDebit {
+    background: #ffeaea;
+    color: #b42318;
 }
 
 .historyItemMain {
+    flex: 1;
+    min-width: 0;
+}
+
+.historyItemHeader {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 10px;
+    align-items: flex-start;
+    gap: 8px;
 }
 
 .historyAmount {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.88rem;
     white-space: nowrap;
+}
+
+.historyAmountCredit {
+    color: #2d5a3c;
+}
+
+.historyAmountDebit {
+    color: #c0392b;
 }
 
 .historyDate {
@@ -584,14 +663,38 @@
 }
 
 .historyDesc {
-    font-size: 0.88rem;
+    font-size: 0.84rem;
     color: #1a2e1a;
+    font-weight: 600;
+}
+
+.historyMetaRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.historyMetaBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #f1f6f2;
+    color: #3d7a56;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.historyMetaText {
+    font-size: 0.76rem;
+    color: #5a6e5a;
 }
 
 .historyPagination {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 16px;
 }
 
@@ -616,11 +719,6 @@
     border-color: #c5d9c8;
     color: #b6c6b6;
     cursor: not-allowed;
-}
-
-.historyPageLabel {
-    font-size: 0.8rem;
-    color: #5a6e5a;
 }
 
 /* =============================================
